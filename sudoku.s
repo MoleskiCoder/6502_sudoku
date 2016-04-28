@@ -397,14 +397,34 @@ continue:
 
 .proc is_available
 
+; A == number
+; Y == n
+
 _number := scratch
 _n := _number + 1
 
+	jsr is_used_in_row
+	beq used
+
+	jsr is_used_in_column
+	beq used
+
+	jsr is_used_in_box
+	beq used
+
+	; Not used, so return true
+	lda #0
 	rts
+
+used:	; So return false
+	lda #1
+	rts
+
 .endproc
 
 
 reset:
+	jsr library::stack::_init
 
 
 loop:   jmp     loop
