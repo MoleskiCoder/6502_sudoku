@@ -1,9 +1,9 @@
-//
-// From: https://see.stanford.edu/materials/icspacs106b/H19-RecBacktrackExamples.pdf
-//
-// A straightforward port from C to 6502 assembler
-//
-// http://www.telegraph.co.uk/news/science/science-news/9359579/Worlds-hardest-sudoku-can-you-crack-it.html
+;
+; From: https://see.stanford.edu/materials/icspacs106b/H19-RecBacktrackExamples.pdf
+;
+; A straightforward port from C to 6502 assembler
+;
+; http://www.telegraph.co.uk/news/science/science-news/9359579/Worlds-hardest-sudoku-can-you-crack-it.html
 
         .setcpu "6502"
 
@@ -299,10 +299,10 @@ loop:
 	tya
 	pha
 
-	sty maths::numerator
+	sty library::maths::numerator
 	lda #BOX_SIZE
-	sta maths::denominator
-	jsr maths::divmod
+	sta library::maths::denominator
+	jsr library::maths::divmod
 
 	jsr xy2move
 	clc
