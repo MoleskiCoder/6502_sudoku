@@ -405,20 +405,6 @@ _n := _number + 1
 
 
 reset:
-	jsr library::io::outstr
-	.asciiz "Hello world,"
-
-	jsr library::io::outstr
-	.asciiz "Goodbye world"
-
-	lda #80
-	sta library::maths::numerator
-	lda #9
-	sta library::maths::denominator
-	jsr library::maths::divmod
-
-	ldx library::maths::quotient
-	tay			; modulus
 
 
 loop:   jmp     loop

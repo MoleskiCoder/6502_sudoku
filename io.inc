@@ -12,11 +12,17 @@ saveda := returnh + 1
 savedx := saveda + 1
 savedy := savedx + 1
 
+
 .proc	outchr
 	sta CONOUT
 	rts
 .endproc	; outchr
 
+
+; outstr
+;	example:
+;		jsr library::io::outstr
+; 		asciiz "Hello world,"
 .proc	outstr
 
 	sta saveda
