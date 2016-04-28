@@ -38,6 +38,9 @@ puzzle:
 ;
 
 .proc move2xy
+
+; A == move
+
 	sta library::maths::numerator
 	lda #BOARD_SIZE
 	sta library::maths::denominator
@@ -45,10 +48,18 @@ puzzle:
 	tay
 	ldx library::maths::quotient
 	rts
+
+; X == x grid
+; Y == y grid
+
 .endproc
 
 
 .proc xy2move
+
+; X == x grid
+; Y == y grid
+
 	sty library::maths::first
 	lda #BOARD_SIZE
 	sta library::maths::second
@@ -58,12 +69,17 @@ puzzle:
 	clc
 	adc scratch
 	rts
+
+; A == move
+
 .endproc
 
 
 ; ** Row, column and box start positions
 
 .proc move2row_start
+
+; A == move
 
 _n := scratch
 
@@ -84,10 +100,15 @@ _n := scratch
 	tax
 	lda _n
 	rts
+
+; A == row start offset
+
 .endproc
 
 
 .proc move2column_start
+
+; A == number
 
 _n := scratch
 
@@ -103,10 +124,17 @@ _n := scratch
 	tax
 	lda _n
 	rts
+
+; A == column start offset
+
 .endproc
 
 
 .proc box_side_start
+
+; A == number
+
+; 1 byte of scratch zone used
 
 _n := scratch
 
@@ -135,13 +163,16 @@ _n := scratch
 	lda scratch
 
 	rts
+
+; A == box side start offset
+
 .endproc
 
 
 .proc move2box_start
 
-_x := scratch
-_y := _x + 1
+; A == move
+
 _xbox := _y + 1
 _ybox := _xbox + 1
 _n := _ybox + 1
@@ -180,6 +211,9 @@ _n := _ybox + 1
 	lda _n
 
 	rts
+
+; A == box start offset
+
 .endproc
 
 
@@ -189,6 +223,9 @@ _n := _ybox + 1
 ; in the specified row matches the given number.
 
 .proc is_used_in_row
+
+; A == number
+; Y == n
 
 _number := scratch
 _n := _number + 1
@@ -221,6 +258,10 @@ continue:
 	ldx _savex
 	pla
 	rts
+
+; A == zero, used
+; A == non-zero, unused
+
 .endproc
 
 
@@ -230,6 +271,9 @@ continue:
 ; in the specified column matches the given number.
 
 .proc is_used_in_column
+
+; A == number
+; Y == n
 
 _number := scratch
 _n := _number + 1
@@ -267,6 +311,10 @@ continue:
 	ldx _savex
 	pla
 	rts
+
+; A == zero, used
+; A == non-zero, unused
+
 .endproc
 
 
@@ -276,6 +324,9 @@ continue:
 ; within the specified 3x3 box matches the given number.
 
 .proc is_used_in_box
+
+; A == number
+; Y == n
 
 _box_start := scratch
 _x_box := _box_start + 1
@@ -329,6 +380,23 @@ success:
 continue:
 	ldx _savex
 	pla
+	rts
+
+; A == zero, used
+; A == non-zero, unused
+
+.endproc
+
+; Function: is_available
+; ----------------------
+; Returns a boolean which indicates whether it will be legal to assign
+; number to the given row, column location.As assignment is legal if it that
+; number is not already used in the row, column, or box.
+
+.proc is_available
+
+_number := scratch
+_n := 
 	rts
 .endproc
 

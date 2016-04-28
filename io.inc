@@ -3,6 +3,8 @@
 CONIN := $e004
 CONOUT := $e001
 
+control = $30
+
 returnl := control
 returnh := returnl + 1
 return := control

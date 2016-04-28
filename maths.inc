@@ -1,9 +1,8 @@
 .scope maths
 
-numerator := control
-denominator := control + 1
 
-quotient := numerator
+control := $20
+
 
 ; http://6502org.wikidot.com/software-math-intdiv
 
@@ -15,6 +14,11 @@ quotient := numerator
 ; Outputs:
 ; maths::quotient = 8-bit quotient of numerator / denominator
 ; A = remainder of numerator / denominator
+
+numerator := control
+denominator := control + 1
+
+quotient := numerator
 
 .proc divmod
 	TXA
@@ -39,6 +43,7 @@ L2:	ROL numerator
 	LDA numerator
 	RTS
 .endproc
+
 
 ; http://6502org.wikidot.com/software-math-intmul
 
@@ -71,5 +76,6 @@ L2:	DEX
 	LDA first
 	RTS
 .endproc
+
 
 .endscope	; maths

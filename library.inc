@@ -1,7 +1,6 @@
 .scope library
 
-control := $80
-
+.include "stack.inc"
 .include "maths.inc"
 .include "io.inc"
 
