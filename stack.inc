@@ -9,7 +9,7 @@ addrl := stackp + 1
 addrh := addrl + 1
 addr := addrl
 
-savex := addrh + 3
+savey := addrh + 3
 
 
 ; Initialise the stack to an empty state
@@ -21,30 +21,30 @@ savex := addrh + 3
 	lda stackh
 	sta addrh
 	lda #0
-	sta stackl
+	sta addrl
 	pla
 	rts
 .endproc
 
 
 .proc pusha
-	stx savex
-	ldx stackp
-	sta (addr),x
-	dex
-	stx stackp
-	ldx savex
+	sty savey
+	ldy stackp
+	sta (addr),y
+	dey
+	sty stackp
+	ldy savey
 	rts
 .endproc
 
 
 .proc popa
-	stx savex
-	ldx stackp
-	inx
-	stx stackp
-	lda (addr),x
-	ldx savex
+	sty savey
+	ldy stackp
+	iny
+	sty stackp
+	lda (addr),y
+	ldy savey
 	rts
 .endproc
 

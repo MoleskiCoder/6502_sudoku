@@ -173,6 +173,8 @@ _n := scratch
 
 ; A == move
 
+_x := scratch
+_y := _x + 1
 _xbox := _y + 1
 _ybox := _xbox + 1
 _n := _ybox + 1
@@ -396,7 +398,8 @@ continue:
 .proc is_available
 
 _number := scratch
-_n := 
+_n := _number + 1
+
 	rts
 .endproc
 
