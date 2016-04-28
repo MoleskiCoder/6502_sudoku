@@ -422,10 +422,82 @@ used:	; So return false
 
 .endproc
 
+; Function: solve
+; ---------------
+; Takes a partially filled - in grid and attempts to assign values to all
+; unassigned locations in such a way to meet the requirements for sudoku
+; solution(non - duplication across rows, columns, and boxes).The function
+; operates via recursive backtracking : it finds an unassigned location with
+; the grid and then considers all digits from 1 to "board-size" in a loop.If a digit
+; is found that has no existing conflicts, tentatively assign it and recur
+; to attempt to fill in rest of grid.If this was successful, the puzzle is
+; solved.If not, unmake that decision and try again.If all digits have
+; been examined and none worked out, return false to backtrack to previous
+; decision point.
+
+.proc solve
+
+; top of stack == n
+
+	jsr library::stack::popa
+	cmp #CELL_COUNT
+	beq success					; success
+
+	tax
+	lda puzzle,x
+	cmp #UNASSIGNED
+	beq unassigned
+	inx
+	jsr library::stack::pushx
+	jsr solve					; if it's already assigned, skip
+	rts
+
+unassigned:
+	ldy #BOARD_SIZE					; consider all digits
+loop:
+	tya
+	pha	; save y
+
+	pha	; hold for the register transfer
+
+	txa
+	tay	; move x to y
+	pla	; pull y to a
+
+	jsr is_available
+	bne end_loop
+
+	tax
+	tya
+	sta puzzle,x					; make tentative assignment
+
+	inx
+	jsr library::stack::pushx
+	jsr solve
+	beq success					; recur, if success, yay!
+
+end_loop:
+	pla
+	tay	; restore y
+
+	dey
+	bne loop
+
+	lda #UNASSIGNED
+	sta puzzle,x					; failure, unmake and try again
+
+	lda #1						; this triggers backtracking
+success:
+	rts
+.endproc
+
 
 reset:
 	jsr library::stack::_init
 
+	lda #0
+	jsr library::stack::pusha
+	jsr solve
 
 loop:   jmp     loop
 
