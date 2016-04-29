@@ -9,7 +9,8 @@
 
         .segment "OS"
 
-.include "library.inc"
+.include "maths.inc"
+.include "stack.inc"
 
 ; Scratchpad area.  Not sure how long this will be.  Aliased within "proc" scope.
 
@@ -41,12 +42,12 @@ puzzle:
 
 ; A == move
 
-	sta library::maths::numerator
+	sta maths::numerator
 	lda #BOARD_SIZE
-	sta library::maths::denominator
-	jsr library::maths::divmod
+	sta maths::denominator
+	jsr maths::divmod
 	tay
-	ldx library::maths::quotient
+	ldx maths::quotient
 	rts
 
 ; X == x grid
@@ -60,10 +61,10 @@ puzzle:
 ; X == x grid
 ; Y == y grid
 
-	sty library::maths::first
+	sty maths::first
 	lda #BOARD_SIZE
-	sta library::maths::second
-	jsr library::maths::multiply
+	sta maths::second
+	jsr maths::multiply
 	sta scratch
 	txa
 	clc
@@ -89,10 +90,10 @@ _n := scratch
 	tya
 	pha
 	jsr move2xy
-	sty library::maths::first
+	sty maths::first
 	lda #BOARD_SIZE
-	sta library::maths::second
-	jsr library::maths::multiply
+	sta maths::second
+	jsr maths::multiply
 	sta scratch
 	pla
 	tay
@@ -143,11 +144,11 @@ _n := scratch
 	txa
 	pha
 
-	sta library::maths::numerator
+	sta maths::numerator
 
 	lda #BOX_SIZE
-	sta library::maths::denominator
-	jsr library::maths::divmod
+	sta maths::denominator
+	jsr maths::divmod
 
 	tax
 	lda scratch
@@ -352,10 +353,10 @@ loop:
 	tya
 	pha
 
-	sty library::maths::numerator
+	sty maths::numerator
 	lda #BOX_SIZE
-	sta library::maths::denominator
-	jsr library::maths::divmod
+	sta maths::denominator
+	jsr maths::divmod
 
 	jsr xy2move
 	clc
@@ -439,7 +440,7 @@ used:	; So return false
 
 ; top of stack == n
 
-	jsr library::stack::popa
+	jsr stack::popa
 	cmp #CELL_COUNT
 	beq success					; success
 
@@ -448,7 +449,7 @@ used:	; So return false
 	cmp #UNASSIGNED
 	beq unassigned
 	inx
-	jsr library::stack::pushx
+	jsr stack::pushx
 	jsr solve					; if it's already assigned, skip
 	rts
 
@@ -472,7 +473,7 @@ loop:
 	sta puzzle,x					; make tentative assignment
 
 	inx
-	jsr library::stack::pushx
+	jsr stack::pushx
 	jsr solve
 	beq success					; recur, if success, yay!
 
@@ -493,10 +494,10 @@ success:
 
 
 reset:
-	jsr library::stack::_init
+	jsr stack::_init
 
 	lda #0
-	jsr library::stack::pusha
+	jsr stack::pusha
 	jsr solve
 
 loop:   jmp     loop
