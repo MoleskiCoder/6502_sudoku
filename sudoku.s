@@ -347,46 +347,12 @@ return:
 
 reset:
 	jsr stack::init
-	jsr stack::_test
-	cpx #0
+
+	lda #0
+	pusha
+	jsr solve
+	popa
 	bne fail
-
-	;jsr stack::_init
-
-	;lda #0
-	;jsr stack::pusha
-	;jsr solve
-
-;.proc is_used_in_row
-; A == number
-; Y == n
-
-; first row
-;	lda #8
-;	ldy #0
-;	jsr is_used_in_row
-;	bne fail
-
-;	lda #1
-;	ldy #0
-;	jsr is_used_in_row
-;	beq fail
-
-; second row
-;	lda #3
-;	ldy #9
-;	jsr is_used_in_row
-;	bne fail
-
-	;lda #6
-	;ldy #9
-	;jsr is_used_in_row
-	;bne fail
-
-;	lda #1
-;	ldy #9
-;	jsr is_used_in_row
-;	beq fail
 
 pass:
 	jsr io::outstr
