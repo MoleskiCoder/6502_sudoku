@@ -1,16 +1,16 @@
 ;
 ; From: https://see.stanford.edu/materials/icspacs106b/H19-RecBacktrackExamples.pdf
 ;
-; A straightforward port from C to 6502 assembler
+; A straightforward port from C to 6502 assembler (although feeling like Forth!)
 ;
-; http://www.telegraph.co.uk/news/science/science-news/9359579/Worlds-hardest-sudoku-can-you-crack-it.html
 
         .setcpu "6502"
 
         .segment "OS"
 
-.include "maths.inc"
 .include "stack.inc"
+.include "maths.inc"
+.include "io.inc"
 
 ; Scratchpad area.  Not sure how long this will be.  Aliased within "proc" scope.
 
@@ -22,6 +22,8 @@ UNASSIGNED := 0
 BOX_SIZE := 3
 BOARD_SIZE := 9
 CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
+
+; http://www.telegraph.co.uk/news/science/science-news/9359579/Worlds-hardest-sudoku-can-you-crack-it.html
 
 puzzle:
 	.byte 8, 0, 0, 0, 0, 0, 0, 0, 0
@@ -38,185 +40,73 @@ puzzle:
 ; ** Move and grid position translation methods
 ;
 
-.proc move2xy
-
-; A == move
-
-	sta maths::numerator
+.proc move2xy ; ( n -- x y )
+	pha
 	lda #BOARD_SIZE
-	sta maths::denominator
+	pusha
 	jsr maths::divmod
-	tay
-	ldx maths::quotient
+	pla
 	rts
-
-; X == x grid
-; Y == y grid
-
 .endproc
 
-
-.proc xy2move
-
-; X == x grid
-; Y == y grid
-
-	sty maths::first
-	lda #BOARD_SIZE
-	sta maths::second
-	jsr maths::multiply
-	sta scratch
-	txa
-	clc
-	adc scratch
+.proc move2x ; ( n -- x )
+	jsr move2xy
+	drop
 	rts
+.endproc
 
-; A == move
+.proc move2y ; ( n -- x )
+	jsr move2xy
+	swap
+	drop
+	rts
+.endproc
 
+.proc xy2move ; ( x y -- n )
+	pha
+	lda #BOARD_SIZE
+	pusha
+	jsr maths::multiply
+	jsr maths::add
+	pla
+	rts
 .endproc
 
 
 ; ** Row, column and box start positions
 
-.proc move2row_start
-
-; A == move
-
-_n := scratch
-
-	sta _n
-	txa
-	pha
-	tya
-	pha
-	jsr move2xy
-	sty maths::first
+.proc move2row_start ; ( n -- n )
+	jsr move2y
 	lda #BOARD_SIZE
-	sta maths::second
+	pusha
 	jsr maths::multiply
-	sta scratch
-	pla
-	tay
-	pla
-	tax
-	lda _n
 	rts
-
-; A == row start offset
-
 .endproc
 
-
-.proc move2column_start
-
-; A == number
-
-_n := scratch
-
-	sta _n
-	txa
-	pha
-	tya
-	pha
-	jsr move2xy
-	pla
-	tay
-	pla
-	tax
-	lda _n
+.proc move2column_start ; ( n -- n )
+	jsr move2x
 	rts
-
-; A == column start offset
-
 .endproc
 
-
-.proc box_side_start
-
-; A == number
-
-; 1 byte of scratch zone used
-
-_n := scratch
-
-	sta _n
-
-	txa
+.proc box_side_start ; ( n -- n )
 	pha
-
-	sta maths::numerator
-
+	dup
 	lda #BOX_SIZE
-	sta maths::denominator
-	jsr maths::divmod
-
-	tax
-	lda scratch
-	stx scratch
-
-	clc
-	sbc scratch
-	sta scratch
-
+	pusha
+	jsr maths::mod
+	jsr maths::subtract
 	pla
-	tax
-
-	lda scratch
-
 	rts
-
-; A == box side start offset
-
 .endproc
 
-
-.proc move2box_start
-
-; A == move
-
-_x := scratch
-_y := _x + 1
-_xbox := _y + 1
-_ybox := _xbox + 1
-_n := _ybox + 1
-
-	sta _n
-
-	txa
-	pha
-
-	tya
-	pha
-
+.proc move2box_start ; ( n -- n )
 	jsr move2xy
-	stx _x
-	sty _y
-
-	txa
 	jsr box_side_start
-	sta _xbox
-
-	tya
+	swap
 	jsr box_side_start
-	sta _ybox
-
-	ldx _xbox
-	ldy _ybox
+	swap
 	jsr xy2move
-	sta _n
-
-	pla
-	tay
-
-	pla
-	tax
-
-	lda _n
-
 	rts
-
-; A == box start offset
-
 .endproc
 
 
@@ -225,24 +115,17 @@ _n := _ybox + 1
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified row matches the given number.
 
-.proc is_used_in_row
-
-; A == number
-; Y == n
+.proc is_used_in_row ; ( number n -- f )
 
 _number := scratch
-_n := _number + 1
-_savex := _n + 1
 
-_offset := _savex + 1
-
-	sta _number
-	sty _n
-	stx _savex
-	tya
+	pha
+	phx
+	phy
 	jsr move2row_start
-	sta _offset
-	ldx _offset
+	popx
+	popa
+	sta _number
 	ldy #BOARD_SIZE
 loop:
 	lda puzzle,x
@@ -251,20 +134,18 @@ loop:
 	inx
 	dey
 	bne loop
-	lda #1		; failure, zero cleared
-	pha
-	jmp continue
-success:
-	lda #0		; success, zero flag
-	pha
-continue:
-	ldx _savex
+fail:
+	lda #1
+	pusha
+return:
+	ply
+	plx
 	pla
 	rts
-
-; A == zero, used
-; A == non-zero, unused
-
+success:
+	lda #0
+	pusha
+	beq return;
 .endproc
 
 
@@ -273,51 +154,41 @@ continue:
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified column matches the given number.
 
-.proc is_used_in_column
-
-; A == number
-; Y == n
+.proc is_used_in_column ; ( number n -- f )
 
 _number := scratch
-_n := _number + 1
-_savex := _n + 1
 
-_offset := _savex + 1
-
+	pha
+	phx
+	phy
+	jsr move2row_start
+	popx
+	popa
 	sta _number
-	sty _n
-	stx _savex
-	tya
-	jsr move2column_start
-	sta _offset
-	ldx _offset
 	ldy #BOARD_SIZE
 loop:
 	lda puzzle,x
 	cmp _number
 	beq success
-
-	txa
-	clc
-	adc #BOARD_SIZE
-	tax
-
+	pushx
+	lda #BOARD_SIZE
+	pusha
+	jsr maths::add
+	popx
 	dey
 	bne loop
-	lda #1		; failure, zero cleared
-	pha
-	jmp continue
-success:
-	lda #0		; success, zero flag
-	pha
-continue:
-	ldx _savex
+fail:
+	lda #1
+	pusha
+return:
+	ply
+	plx
 	pla
 	rts
-
-; A == zero, used
-; A == non-zero, unused
-
+success:
+	lda #0
+	pusha
+	beq return;
 .endproc
 
 
@@ -326,69 +197,45 @@ continue:
 ; Returns a boolean which indicates whether any assigned entry
 ; within the specified 3x3 box matches the given number.
 
-.proc is_used_in_box
+.proc is_used_in_box ; ( number n -- f )
 
-; A == number
-; Y == n
+_number := scratch
 
-_box_start := scratch
-_x_box := _box_start + 1
-_y_box := _x_box + 1
-_offset := _y_box + 1
-
-_number := _offset +1
-_n := _number + 1
-
-_savex := _n + 1
-
-	sta _number
-	sty _n
-	stx _savex
-	tya
-	jsr move2box_start
-	sta _box_start
-
-	ldy #BOARD_SIZE
-loop:
-	tya
 	pha
-
-	sty maths::numerator
+	phx
+	phy
+	jsr move2box_start
+	popx
+	popa
+	sta _number
+	ldy #0
+loop:
+	pushy
 	lda #BOX_SIZE
-	sta maths::denominator
+	pusha
 	jsr maths::divmod
-
 	jsr xy2move
-	clc
-	adc _box_start
-	tax
-
+	popx
 	lda puzzle,x
 	cmp _number
 	beq success
-
-	pla
-	tay
-
-	dey
-	beq loop
-
-	lda #1		; failure, zero cleared
-	pha
-	jmp continue
-success:
-	pla		; the dangling y push
-	lda #0		; success, zero flag
-	pha
-continue:
-	ldx _savex
+	iny
+	cpy #BOARD_SIZE
+	bne loop
+fail:
+	lda #1
+	pusha
+return:
+	ply
+	plx
 	pla
 	rts
-
-; A == zero, used
-; A == non-zero, unused
-
+success:
+	lda #0
+	pusha
+	beq return;
 .endproc
+
 
 ; Function: is_available
 ; ----------------------
@@ -396,32 +243,34 @@ continue:
 ; number to the given row, column location.As assignment is legal if it that
 ; number is not already used in the row, column, or box.
 
-.proc is_available
+.proc is_available ; ( number n -- f )
 
-; A == number
-; Y == n
+	pha
 
-_number := scratch
-_n := _number + 1
-
+	two_dup
 	jsr is_used_in_row
-	beq used
-
+	beq used_drop
+		
+	two_dup
 	jsr is_used_in_column
-	beq used
+	beq used_drop
 
 	jsr is_used_in_box
 	beq used
 
-	; Not used, so return true
 	lda #0
-	rts
+	beq return
 
-used:	; So return false
+used_drop:
+	two_drop
+used:
 	lda #1
+return:
+	pusha
+	pla
 	rts
-
 .endproc
+
 
 ; Function: solve
 ; ---------------
@@ -436,69 +285,120 @@ used:	; So return false
 ; been examined and none worked out, return false to backtrack to previous
 ; decision point.
 
-.proc solve
+.proc solve ; ( n -- f )
 
-; top of stack == n
+	pha
+	phx
 
-	jsr stack::popa
+	dup
+	popa
 	cmp #CELL_COUNT
-	beq success					; success
+	beq success					; success!
 
-	tax
+	dup
+	popx
 	lda puzzle,x
-	cmp #UNASSIGNED
 	beq unassigned
 	inx
-	jsr stack::pushx
+	pushx
 	jsr solve					; if it's already assigned, skip
-	rts
+	jmp return
 
 unassigned:
-	ldy #BOARD_SIZE					; consider all digits
+	ldy #10						; consider all digits
 loop:
-	tya
-	pha	; save y
+	pushy
+	pushx
+	jsr is_available				; if looks promising
+	popa
+	bne continue
 
-	pha	; hold for the register transfer
-
-	txa
-	tay	; move x to y
-	pla	; pull y to a
-
-	jsr is_available
-	bne end_loop
-
-	tax
 	tya
 	sta puzzle,x					; make tentative assignment
 
 	inx
-	jsr stack::pushx
+	pushx
 	jsr solve
+	popa
 	beq success					; recur, if success, yay!
 
-end_loop:
-	pla
-	tay	; restore y
-
+continue:
 	dey
 	bne loop
 
 	lda #UNASSIGNED
-	sta puzzle,x					; failure, unmake and try again
+	sta puzzle,x					; failure, unmake & try again
 
-	lda #1						; this triggers backtracking
+	lda #1
+	pusha
+	jmp return					; this triggers backtracking
+
 success:
+	drop
+	lda #0
+	pusha
+
+return:
+	pla
+	plx
 	rts
 .endproc
 
 
 reset:
-	jsr stack::_init
+	jsr stack::init
+	jsr stack::_test
+	cpx #0
+	bne fail
 
-	lda #0
-	jsr stack::pusha
-	jsr solve
+	;jsr stack::_init
+
+	;lda #0
+	;jsr stack::pusha
+	;jsr solve
+
+;.proc is_used_in_row
+; A == number
+; Y == n
+
+; first row
+;	lda #8
+;	ldy #0
+;	jsr is_used_in_row
+;	bne fail
+
+;	lda #1
+;	ldy #0
+;	jsr is_used_in_row
+;	beq fail
+
+; second row
+;	lda #3
+;	ldy #9
+;	jsr is_used_in_row
+;	bne fail
+
+	;lda #6
+	;ldy #9
+	;jsr is_used_in_row
+	;bne fail
+
+;	lda #1
+;	ldy #9
+;	jsr is_used_in_row
+;	beq fail
+
+pass:
+	jsr io::outstr
+ 	.asciiz "pass"
+	jmp loop
+
+fail:
+	jsr io::outstr
+ 	.asciiz "fail"
+	jmp loop
+
+
 
 loop:   jmp     loop
 

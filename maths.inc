@@ -4,64 +4,110 @@
 control := $20
 
 
+.proc add ; ( first second -- result )
+
+_scratch := control
+
+	pha
+	popa
+	sta _scratch
+	clc
+	popa
+	adc _scratch
+	pusha
+	pla
+	rts
+.endproc
+
+.proc subtract ; ( first second -- result )
+
+_scratch := control
+
+	pha
+	popa
+	sta scratch
+	popa
+	clc
+	sbc scratch
+	pusha
+	pla
+	rts
+.endproc
+
+
 ; http://6502org.wikidot.com/software-math-intdiv
-
 ; 8-bit / 8-bit = 8-bit quotient, 8-bit remainder (unsigned)
+.proc divmod ; ( numerator denominator -- modulus quotient )
 
-; Inputs:
-; maths::numerator = 8-bit numerator
-; maths::denominator = 8-bit denominator
-; Outputs:
-; maths::quotient = 8-bit quotient of numerator / denominator
-; A = remainder of numerator / denominator
+_numerator := control
+_denominator := control + 1
 
-numerator := control
-denominator := control + 1
+_quotient := _numerator
 
-quotient := numerator
+	pha
+	phx
+	phy
 
-.proc divmod
-	TXA
-	PHA
-	TYA
-	PHA
+	popa
+	sta _denominator
+
+	popa
+	sta _numerator
+
 	LDA #0
 	LDX #8	; number of bits?
-	ASL numerator
+	ASL _numerator
 L1:	ROL
-	CMP denominator
+	CMP _denominator
 	BCC L2
-	SBC denominator
-L2:	ROL numerator
+	SBC _denominator
+L2:	ROL _numerator
 	DEX
 	BNE L1
-	STA numerator
-	PLA
-	TAY
-	PLA
-	TAX
-	LDA numerator
+
+	pusha
+
+	lda _quotient
+	pusha
+
+	ply
+	plx
+	pla
+
 	RTS
+.endproc
+
+.proc div ; ( numerator denominator -- quotient )
+	jsr divmod
+	swap
+	drop
+	rts
+.endproc
+
+.proc mod ; ( numerator denominator -- modulus )
+	jsr divmod
+	drop
+	rts
 .endproc
 
 
 ; http://6502org.wikidot.com/software-math-intmul
-
 ; 8-bit * 8-bit = 8-bit product (signed or unsigned)
 
-; Inputs:
-; maths::first = 8-bit integer
-; maths::second = 8-bit integer
-; Output:
-; A = product of first * second
-; Note that it is not necessary to initialize the accumulator!
+.proc multiply ; ( first second -- result )
 
 first := control
 second := control + 1
 
-.proc multiply
-	TXA
-	PHA
+	pha
+	phx
+
+	popa
+	sta second
+
+	popa
+	sta first
+
 	LDX #8
 L1:	ASL
 	ASL first
@@ -70,10 +116,9 @@ L1:	ASL
 	ADC second
 L2:	DEX
 	BNE L1
-	STA first
-	PLA
-	TAX
-	LDA first
+	pusha
+	plx
+	pla
 	RTS
 .endproc
 
