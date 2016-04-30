@@ -27,7 +27,7 @@ _scratch := control
 	popa
 	sta scratch
 	popa
-	clc
+	sec
 	sbc scratch
 	pusha
 	pla
@@ -120,6 +120,108 @@ L2:	DEX
 	plx
 	pla
 	RTS
+.endproc
+
+
+.proc _tests
+
+	ldx #0
+
+	nop
+	nop
+
+	; add
+	inx
+	lda #3
+	pusha
+	lda #4
+	pusha
+	jsr add
+	popa
+	cmp #7
+	bne fail
+
+	nop
+	nop
+
+	; subtract
+	inx
+	lda #7
+	pusha
+	lda #3
+	pusha
+	jsr subtract
+	popa
+	cmp #4
+	bne fail
+
+	nop
+	nop
+
+	; divmod
+	inx
+	lda #19
+	pusha
+	lda #9
+	pusha
+	jsr divmod
+	popa
+	cmp #2
+	bne fail
+	popa
+	cmp #1
+	bne fail
+
+	nop
+	nop
+
+	; div
+	inx
+	lda #19
+	pusha
+	lda #9
+	pusha
+	jsr div
+	popa
+	cmp #2
+	bne fail
+
+	nop
+	nop
+
+	; mod
+	inx
+	lda #19
+	pusha
+	lda #9
+	pusha
+	jsr mod
+	popa
+	cmp #1
+	bne fail
+
+	nop
+	nop
+
+	; multiply
+	inx
+	lda #7
+	pusha
+	lda #6
+	pusha
+	jsr multiply
+	popa
+	cmp #42
+	bne fail
+
+	nop
+	nop
+
+	rts
+
+	; x contains failing test number (from 1)
+fail:	jmp fail
+
 .endproc
 
 
