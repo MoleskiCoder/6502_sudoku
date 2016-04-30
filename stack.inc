@@ -140,8 +140,8 @@ addrw := stackp + 1
 	pushx
 	pusha
 	pushx
-	phx
-	pha
+	plx
+	pla
 	rts
 .endproc
 
@@ -235,6 +235,7 @@ savey := addrw + 2
 .proc _tests
 
 	ldx #1
+
 	jsr position
 	cmp #$ff
 	bne fail
@@ -249,11 +250,11 @@ savey := addrw + 2
 	popa
 	cmp #$10
 	bne fail
-
-	inx
 	jsr position
 	cmp #$ff
 	bne fail
+
+	inx
 	lda #$10
 	pusha
 	lda #$20
@@ -263,10 +264,7 @@ savey := addrw + 2
 	jsr position
 	cmp #$fe
 	bne fail
-	jsr popa
-	jsr position
-	cmp #$ff
-	bne fail
+	popa
 
 	inx
 	lda #$10
@@ -280,6 +278,23 @@ savey := addrw + 2
 	popa
 	cmp #$20
 	bne fail
+
+	inx
+	lda #$10
+	pusha
+	lda #$20
+	pusha
+	over
+	popa
+	cmp #$10
+	bne fail
+	popa
+	cmp #$20
+	bne fail
+	popa
+	cmp #$10
+	bne fail
+
 	jsr position
 	cmp #$ff
 	bne fail
