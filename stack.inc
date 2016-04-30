@@ -189,7 +189,9 @@ savey := addrw + 2
 	iny
 	sty stackp
 	lda (addrw),y
+	pha
 	ldy savey
+	pla
 	rts
 .endproc
 
