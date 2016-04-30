@@ -361,6 +361,28 @@ reset:
 	cmp #$ff
 	bne fail
 
+	lda #19
+	pusha
+	jsr move2x
+	popx
+	cpx #1
+	bne fail
+	jsr stack::position
+	cmp #$ff
+	bne fail
+
+	lda #19
+	pusha
+	jsr move2y
+	popy
+	cpy #2
+	bne fail
+	jsr stack::position
+	cmp #$ff
+	bne fail
+
+
+
 ;	lda #7
 ;	pusha
 ;	lda #18
