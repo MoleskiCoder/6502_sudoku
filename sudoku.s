@@ -436,13 +436,19 @@ test_epilogue
 	jsr io::outstr
  	.asciiz "Start position tests: "
 
+	lda #7
+	pusha
+	jsr box_side_start
+	popa
+	cmp #6
+	bne fail
+
 	lda #19
 	pusha
 	jsr move2row_start
 	popa
 	cmp #18
 	bne fail
-	verify_empty_stack
 
 	lda #19
 	pusha
@@ -450,13 +456,26 @@ test_epilogue
 	popa
 	cmp #1
 	bne fail
-	verify_empty_stack
 
 	lda #19
 	pusha
 	jsr move2box_start
 	popa
 	cmp #0
+	bne fail
+
+	lda #36
+	pusha
+	jsr move2box_start
+	popa
+	cmp #27
+	bne fail
+
+	lda #80
+	pusha
+	jsr move2box_start
+	popa
+	cmp #60
 	bne fail
 	verify_empty_stack
 
@@ -468,6 +487,7 @@ test_epilogue
 reset:
 	jsr stack::init
 
+	jsr maths::_tests
 	jsr stack::_tests
 	jsr move_trans_tests
 	jsr start_position_tests
