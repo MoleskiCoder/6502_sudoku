@@ -8,6 +8,9 @@
 
         .segment "OS"
 
+start:
+	jmp reset
+
 .include "stack.inc"
 .include "maths.inc"
 .include "io.inc"
@@ -308,7 +311,7 @@ return:
 	jmp return
 
 unassigned:
-	ldy #10						; consider all digits
+	ldy #9						; consider all digits
 loop:
 	pushy
 	pushx
@@ -601,6 +604,50 @@ test_epilogue
 .endproc
 
 
+.proc is_available_tests
+
+	jsr io::outstr
+ 	.asciiz "Is available tests: "
+
+	lda #6
+	pusha
+	lda #80
+	pusha
+	jsr is_available
+	popa
+	beq fail
+
+	lda #1
+	pusha
+	lda #80
+	pusha
+	jsr is_available
+	popa
+	beq fail
+
+	lda #4
+	pusha
+	lda #80
+	pusha
+	jsr is_available
+	popa
+	beq fail
+
+	lda #5
+	pusha
+	lda #80
+	pusha
+	jsr is_available
+	popa
+	bne fail
+
+	verify_empty_stack
+
+test_epilogue
+
+.endproc
+
+
 .proc game
 
 	jsr io::outstr
@@ -626,6 +673,7 @@ reset:
 	jsr used_in_row_tests
 	jsr used_in_column_tests
 	jsr used_in_box_tests
+	jsr is_available_tests
 	;jsr game
 
 loop:   jmp     loop
