@@ -345,8 +345,17 @@ return:
 .endproc
 
 
-reset:
-	jsr stack::init
+.macro verify_empty_stack
+	jsr stack::position
+	cmp #$ff
+	bne fail
+.endmacro
+
+
+.proc move_trans_tests
+
+	jsr io::outstr
+ 	.asciiz "Move translation tests: "
 
 	lda #19
 	pusha
@@ -357,9 +366,7 @@ reset:
 	popx
 	cpx #1
 	bne fail
-	jsr stack::position
-	cmp #$ff
-	bne fail
+	verify_empty_stack
 
 	lda #19
 	pusha
@@ -367,9 +374,7 @@ reset:
 	popx
 	cpx #1
 	bne fail
-	jsr stack::position
-	cmp #$ff
-	bne fail
+	verify_empty_stack
 
 	lda #19
 	pusha
@@ -377,10 +382,40 @@ reset:
 	popy
 	cpy #2
 	bne fail
-	jsr stack::position
-	cmp #$ff
-	bne fail
+	verify_empty_stack
 
+	ldx #1
+	pushx
+	ldy #2
+	pushy
+	jsr xy2move
+	popa
+	cmp #19
+	bne fail
+	verify_empty_stack
+	jmp pass
+
+return:
+	jsr io::outstr
+ 	.byte $d, $a, 0
+	rts
+
+pass:
+	jsr io::outstr
+ 	.asciiz "pass"
+	jmp return
+
+fail:
+	jsr io::outstr
+ 	.asciiz "fail"
+	jmp return
+
+.endproc
+
+
+reset:
+	jsr stack::init
+	jsr move_trans_tests
 
 
 ;	lda #7
@@ -436,18 +471,6 @@ reset:
 	;jsr solve
 	;popa
 	;bne fail
-
-pass:
-	jsr io::outstr
- 	.asciiz "pass"
-	jmp loop
-
-fail:
-	jsr io::outstr
- 	.asciiz "fail"
-	jmp loop
-
-
 
 loop:   jmp     loop
 
