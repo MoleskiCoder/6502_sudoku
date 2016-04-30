@@ -234,38 +234,37 @@ savey := addrw + 2
 
 .proc _tests
 
-	ldx #1
+	ldx #0
 
-	jsr position
-	cmp #$ff
-	bne fail
-
+push_pop_test:
 	inx
 	lda #$10
 	pusha
-	jsr position
-	cmp #$fe
-	bne fail
 	lda #$20
 	popa
 	cmp #$10
-	bne fail
-	jsr position
-	cmp #$ff
-	bne fail
+	beq top_test
+	jmp fail
 
+	nop
+	nop
+
+top_test:
 	inx
 	lda #$10
 	pusha
 	lda #$20
 	jsr top
 	cmp #$10
-	bne fail
-	jsr position
-	cmp #$fe
-	bne fail
+	beq top_test_continue
+	jmp fail
+top_test_continue:
 	popa
 
+	nop
+	nop
+
+swap_test:
 	inx
 	lda #$10
 	pusha
@@ -277,8 +276,13 @@ savey := addrw + 2
 	bne fail
 	popa
 	cmp #$20
-	bne fail
+	beq over_test
+	jmp fail
 
+	nop
+	nop
+
+over_test:
 	inx
 	lda #$10
 	pusha
@@ -293,13 +297,53 @@ savey := addrw + 2
 	bne fail
 	popa
 	cmp #$10
-	bne fail
+	beq two_dup_test
+	jmp fail
 
+	nop
+	nop
+
+two_dup_test:
+	inx
+
+	lda #$10
+	pusha
+	lda #$20
+	pusha
+
+	two_dup
+
+	popa
+	cmp #$20
+	beq two_dup_test_continue_1
+	jmp fail
+
+two_dup_test_continue_1:
+	popa
+	cmp #$10
+	beq two_dup_test_continue_2
+	jmp fail
+
+two_dup_test_continue_2:
+	popa
+	cmp #$20
+	beq two_dup_test_continue_3
+	jmp fail
+
+two_dup_test_continue_3:
+	popa
+	cmp #$10
+	beq stack_depth_test
+	jmp fail
+
+stack_depth_test:
 	jsr position
 	cmp #$ff
 	bne fail
 
+success:
 	ldx #0		; success marker!
+
 fail:
 	rts
 .endproc
