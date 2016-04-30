@@ -565,6 +565,42 @@ test_epilogue
 .endproc
 
 
+.proc used_in_box_tests
+
+	jsr io::outstr
+ 	.asciiz "Used in box tests: "
+
+	lda #6
+	pusha
+	lda #12
+	pusha
+	jsr is_used_in_box
+	popa
+	beq fail
+
+	lda #9
+	pusha
+	lda #12
+	pusha
+	jsr is_used_in_box
+	popa
+	beq fail
+
+	lda #3
+	pusha
+	lda #12
+	pusha
+	jsr is_used_in_box
+	popa
+	bne fail
+
+	verify_empty_stack
+
+test_epilogue
+
+.endproc
+
+
 .proc game
 
 	jsr io::outstr
@@ -589,6 +625,7 @@ reset:
 	jsr start_position_tests
 	jsr used_in_row_tests
 	jsr used_in_column_tests
+	jsr used_in_box_tests
 	;jsr game
 
 loop:   jmp     loop
