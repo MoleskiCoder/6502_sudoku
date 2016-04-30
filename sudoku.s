@@ -161,7 +161,7 @@ _number := scratch
 	pha
 	phx
 	phy
-	jsr move2row_start
+	jsr move2column_start
 	popx
 	popa
 	sta _number
@@ -530,6 +530,41 @@ test_epilogue
 .endproc
 
 
+.proc used_in_column_tests
+
+	jsr io::outstr
+ 	.asciiz "Used in column tests: "
+
+	lda #7
+	pusha
+	lda #5
+	pusha
+	jsr is_used_in_column
+	popa
+	bne fail
+
+	lda #5
+	pusha
+	lda #5
+	pusha
+	jsr is_used_in_column
+	popa
+	bne fail
+
+	lda #9
+	pusha
+	lda #5
+	pusha
+	jsr is_used_in_column
+	popa
+	beq fail
+	verify_empty_stack
+
+test_epilogue
+
+.endproc
+
+
 .proc game
 
 	jsr io::outstr
@@ -553,6 +588,7 @@ reset:
 	jsr move_trans_tests
 	jsr start_position_tests
 	jsr used_in_row_tests
+	jsr used_in_column_tests
 	;jsr game
 
 loop:   jmp     loop
