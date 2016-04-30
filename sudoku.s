@@ -145,7 +145,7 @@ return:
 success:
 	lda #0
 	pusha
-	beq return;
+	jmp return;
 .endproc
 
 
@@ -188,7 +188,7 @@ return:
 success:
 	lda #0
 	pusha
-	beq return;
+	jmp return;
 .endproc
 
 
@@ -233,7 +233,7 @@ return:
 success:
 	lda #0
 	pusha
-	beq return;
+	jmp return;
 .endproc
 
 
@@ -249,13 +249,16 @@ success:
 
 	two_dup
 	jsr is_used_in_row
+	popa
 	beq used_drop
 		
 	two_dup
 	jsr is_used_in_column
+	popa
 	beq used_drop
 
 	jsr is_used_in_box
+	popa
 	beq used
 
 	lda #0
@@ -484,6 +487,64 @@ test_epilogue
 .endproc
 
 
+.proc used_in_row_tests
+
+	jsr io::outstr
+ 	.asciiz "Used in row tests: "
+
+	lda #7
+	pusha
+	lda #18
+	pusha
+	jsr is_used_in_row
+	popa
+	bne fail
+
+	lda #9
+	pusha
+	lda #18
+	pusha
+	jsr is_used_in_row
+	popa
+	bne fail
+
+	lda #2
+	pusha
+	lda #18
+	pusha
+	jsr is_used_in_row
+	popa
+	bne fail
+	verify_empty_stack
+
+	lda #1
+	pusha
+	lda #18
+	pusha
+	jsr is_used_in_row
+	popa
+	beq fail
+
+test_epilogue
+
+.endproc
+
+
+.proc game
+
+	jsr io::outstr
+ 	.asciiz "Solving puzzle: "
+
+	lda #0
+	pusha
+	jsr solve
+	popa
+	bne fail
+
+test_epilogue
+
+.endproc
+
 reset:
 	jsr stack::init
 
@@ -491,61 +552,8 @@ reset:
 	jsr stack::_tests
 	jsr move_trans_tests
 	jsr start_position_tests
-
-
-;	lda #7
-;	pusha
-;	lda #18
-;	pusha
-;	jsr is_used_in_row
-;	popa
-;	bne fail
-;	jsr stack::position
-;	popa
-;	cmp #$ff
-;	bne fail
-
-;	lda #9
-;	pusha
-;	lda #18
-;	pusha
-;	jsr is_used_in_row
-;	popa
-;	bne fail
-;	jsr stack::position
-;	popa
-;	cmp #$ff
-;	bne fail
-	
-;	lda #2
-;	pusha
-;	lda #18
-;	pusha
-;	jsr is_used_in_row
-;;	popa
-;	bne fail
-;	jsr stack::position
-;	popa
-;	cmp #$ff
-;	bne fail
-
-;	lda #1
-;	pusha
-;	lda #18
-;	pusha
-;	jsr is_used_in_row
-;	popa
-;	beq fail
-;	jsr stack::position
-;	popa
-;	cmp #$ff
-;	bne fail
-
-	;lda #0
-	;pusha
-	;jsr solve
-	;popa
-	;bne fail
+	jsr used_in_row_tests
+	;jsr game
 
 loop:   jmp     loop
 
