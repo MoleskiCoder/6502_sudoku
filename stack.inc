@@ -85,6 +85,7 @@ stackp := control
 addrw := stackp + 1
 
 
+; Return the position of the stack in A
 .proc position
 	lda stackp
 	rts

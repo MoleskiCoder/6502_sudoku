@@ -348,11 +348,72 @@ return:
 reset:
 	jsr stack::init
 
-	lda #0
+	lda #19
 	pusha
-	jsr solve
-	popa
+	jsr move2xy
+	popy
+	cpy #2
 	bne fail
+	popx
+	cpx #1
+	bne fail
+	jsr stack::position
+	cmp #$ff
+	bne fail
+
+;	lda #7
+;	pusha
+;	lda #18
+;	pusha
+;	jsr is_used_in_row
+;	popa
+;	bne fail
+;	jsr stack::position
+;	popa
+;	cmp #$ff
+;	bne fail
+
+;	lda #9
+;	pusha
+;	lda #18
+;	pusha
+;	jsr is_used_in_row
+;	popa
+;	bne fail
+;	jsr stack::position
+;	popa
+;	cmp #$ff
+;	bne fail
+	
+;	lda #2
+;	pusha
+;	lda #18
+;	pusha
+;	jsr is_used_in_row
+;;	popa
+;	bne fail
+;	jsr stack::position
+;	popa
+;	cmp #$ff
+;	bne fail
+
+;	lda #1
+;	pusha
+;	lda #18
+;	pusha
+;	jsr is_used_in_row
+;	popa
+;	beq fail
+;	jsr stack::position
+;	popa
+;	cmp #$ff
+;	bne fail
+
+	;lda #0
+	;pusha
+	;jsr solve
+	;popa
+	;bne fail
 
 pass:
 	jsr io::outstr
