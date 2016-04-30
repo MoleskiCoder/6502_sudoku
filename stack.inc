@@ -230,7 +230,7 @@ savey := addrw + 2
 .endproc
 
 
-.proc _test
+.proc _tests
 
 	ldx #1
 	jsr position
@@ -262,6 +262,22 @@ savey := addrw + 2
 	cmp #$fe
 	bne fail
 	jsr popa
+	jsr position
+	cmp #$ff
+	bne fail
+
+	inx
+	lda #$10
+	pusha
+	lda #$20
+	pusha
+	swap
+	popa
+	cmp #$10
+	bne fail
+	popa
+	cmp #$20
+	bne fail
 	jsr position
 	cmp #$ff
 	bne fail

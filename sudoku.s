@@ -344,6 +344,7 @@ return:
 	rts
 .endproc
 
+;;
 
 .macro verify_empty_stack
 	jsr stack::position
@@ -351,6 +352,37 @@ return:
 	bne fail
 .endmacro
 
+;;
+
+.macro test_return
+return:
+	jsr io::outstr
+ 	.byte $a, 0
+	rts
+.endmacro
+
+.macro test_pass
+pass:
+	jsr io::outstr
+ 	.asciiz "pass"
+	jmp return
+.endmacro
+
+.macro test_fail
+fail:
+	jsr io::outstr
+ 	.asciiz "fail"
+	jmp return
+.endmacro
+
+.macro test_epilogue
+	jmp pass
+test_return
+test_pass
+test_fail
+.endmacro
+
+;;
 
 .proc move_trans_tests
 
@@ -393,29 +425,52 @@ return:
 	cmp #19
 	bne fail
 	verify_empty_stack
-	jmp pass
 
-return:
-	jsr io::outstr
- 	.byte $d, $a, 0
-	rts
+test_epilogue
 
-pass:
-	jsr io::outstr
- 	.asciiz "pass"
-	jmp return
+.endproc
 
-fail:
+
+.proc start_position_tests
+
 	jsr io::outstr
- 	.asciiz "fail"
-	jmp return
+ 	.asciiz "Start position tests: "
+
+	lda #19
+	pusha
+	jsr move2row_start
+	popa
+	cmp #18
+	bne fail
+	verify_empty_stack
+
+	lda #19
+	pusha
+	jsr move2column_start
+	popa
+	cmp #1
+	bne fail
+	verify_empty_stack
+
+	lda #19
+	pusha
+	jsr move2box_start
+	popa
+	cmp #0
+	bne fail
+	verify_empty_stack
+
+test_epilogue
 
 .endproc
 
 
 reset:
 	jsr stack::init
+
+	jsr stack::_tests
 	jsr move_trans_tests
+	jsr start_position_tests
 
 
 ;	lda #7
