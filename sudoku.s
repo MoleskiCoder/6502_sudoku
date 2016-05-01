@@ -208,16 +208,18 @@ _number := scratch
 	phx
 	phy
 	jsr move2box_start
-	popx
+	swap
 	popa
 	sta _number
 	ldy #0
 loop:
+	dup
 	pushy
 	lda #BOX_SIZE
 	pusha
 	jsr maths::divmod
 	jsr xy2move
+	jsr maths::add
 	popx
 	lda puzzle,x
 	cmp _number
@@ -226,6 +228,7 @@ loop:
 	cpy #BOARD_SIZE
 	bne loop
 fail:
+	drop
 	lda #1
 	pusha
 return:
@@ -234,6 +237,7 @@ return:
 	pla
 	rts
 success:
+	drop
 	lda #0
 	pusha
 	jmp return;
@@ -575,11 +579,19 @@ test_epilogue
 
 	lda #6
 	pusha
+	lda #80
+	pusha
+	jsr is_used_in_box
+	popa
+	bne fail
+
+	lda #6
+	pusha
 	lda #12
 	pusha
 	jsr is_used_in_box
 	popa
-	beq fail
+	bne fail
 
 	lda #9
 	pusha
@@ -587,7 +599,7 @@ test_epilogue
 	pusha
 	jsr is_used_in_box
 	popa
-	beq fail
+	bne fail
 
 	lda #3
 	pusha
@@ -595,7 +607,7 @@ test_epilogue
 	pusha
 	jsr is_used_in_box
 	popa
-	bne fail
+	beq fail
 
 	verify_empty_stack
 
@@ -608,6 +620,22 @@ test_epilogue
 
 	jsr io::outstr
  	.asciiz "Is available tests: "
+
+	lda #7
+	pusha
+	lda #0
+	pusha
+	jsr is_available
+	popa
+	beq fail
+
+	lda #7
+	pusha
+	lda #1
+	pusha
+	jsr is_available
+	popa
+	beq fail
 
 	lda #6
 	pusha
