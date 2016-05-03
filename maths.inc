@@ -8,14 +8,12 @@ control := $20
 
 _scratch := control
 
-	pha
 	popa
 	sta _scratch
 	clc
 	popa
 	adc _scratch
 	pusha
-	pla
 	rts
 .endproc
 
@@ -23,14 +21,12 @@ _scratch := control
 
 _scratch := control
 
-	pha
 	popa
 	sta scratch
 	popa
 	sec
 	sbc scratch
 	pusha
-	pla
 	rts
 .endproc
 
@@ -43,10 +39,6 @@ _numerator := control
 _denominator := control + 1
 
 _quotient := _numerator
-
-	pha
-	phx
-	phy
 
 	popa
 	sta _denominator
@@ -69,10 +61,6 @@ L2:	ROL _numerator
 
 	lda _quotient
 	pusha
-
-	ply
-	plx
-	pla
 
 	RTS
 .endproc
@@ -99,9 +87,6 @@ L2:	ROL _numerator
 first := control
 second := control + 1
 
-	pha
-	phx
-
 	popa
 	sta second
 
@@ -117,21 +102,13 @@ L1:	ASL
 L2:	DEX
 	BNE L1
 	pusha
-	plx
-	pla
 	RTS
 .endproc
 
 
 .proc _tests
 
-	ldx #0
-
-	nop
-	nop
-
 	; add
-	inx
 	lda #3
 	pusha
 	lda #4
@@ -145,7 +122,6 @@ L2:	DEX
 	nop
 
 	; subtract
-	inx
 	lda #7
 	pusha
 	lda #3
@@ -159,7 +135,6 @@ L2:	DEX
 	nop
 
 	; divmod
-	inx
 	lda #19
 	pusha
 	lda #9
@@ -176,7 +151,6 @@ L2:	DEX
 	nop
 
 	; div
-	inx
 	lda #19
 	pusha
 	lda #9
@@ -190,7 +164,6 @@ L2:	DEX
 	nop
 
 	; mod
-	inx
 	lda #19
 	pusha
 	lda #9
@@ -204,7 +177,6 @@ L2:	DEX
 	nop
 
 	; multiply
-	inx
 	lda #7
 	pusha
 	lda #6
@@ -219,7 +191,6 @@ L2:	DEX
 
 	rts
 
-	; x contains failing test number (from 1)
 fail:	jmp fail
 
 .endproc
