@@ -11,21 +11,6 @@
 start:
 	jmp reset
 
-.include "stack.inc"
-.include "maths.inc"
-.include "io.inc"
-
-; Scratchpad area.  Not sure how long this will be.  Aliased within "proc" scope.
-
-scratch := 80
-
-; Some useful constants
-
-UNASSIGNED := 0
-BOX_SIZE := 3
-BOARD_SIZE := 9
-CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
-
 ; http://www.telegraph.co.uk/news/science/science-news/9359579/Worlds-hardest-sudoku-can-you-crack-it.html
 
 puzzle:
@@ -38,6 +23,23 @@ puzzle:
 	.byte 0, 0, 1, 0, 0, 0, 0, 6, 8
 	.byte 0, 0, 8, 5, 0, 0, 0, 1, 0
 	.byte 0, 9, 0, 0, 0, 0, 4, 0, 0
+
+
+; Scratchpad area.  Not sure how long this will be.  Aliased within "proc" scope.
+
+scratch := 80
+
+; Some useful constants
+
+UNASSIGNED := 0
+BOX_SIZE := 3
+BOARD_SIZE := 9
+CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
+
+
+.include "stack.inc"
+.include "maths.inc"
+.include "io.inc"
 
 ;
 ; ** Move and grid position translation methods
@@ -297,61 +299,68 @@ return:
 
 .proc solve ; ( n -- f )
 
-	pha
 	phx
+	phy
+	pha
 
-	dup
-	popa
-	cmp #CELL_COUNT
-	beq success					; success!
-
-	dup
 	popx
+	cpx #CELL_COUNT
+	beq _return_true
+
 	lda puzzle,x
-	beq unassigned
-	inx
-	pushx
-	jsr solve					; if it's already assigned, skip
-	jmp return
-
-unassigned:
-	ldy #9						; consider all digits
-loop:
-	pushy
-	pushx
-	jsr is_available				; if looks promising
-	popa
-	bne continue
-
-	tya
-	sta puzzle,x					; make tentative assignment
+	beq _begin_loop
 
 	inx
 	pushx
 	jsr solve
-	popa
-	beq success					; recur, if success, yay!
+	jmp _return
 
-continue:
-	dey
-	bne loop
+_begin_loop:
+	ldy #1
+
+_loop:
+	pushy
+	pushx
+	jsr is_available
+	popa
+	bne _loop_continue
+
+	tya
+	sta puzzle,x
+
+	phx
+	inx
+	pushx
+	plx
+
+	jsr solve
+	popa
+	beq _return_true
+
+_loop_continue:
+	iny
+	cpy #BOARD_SIZE + 1
+	bne _loop
 
 	lda #UNASSIGNED
-	sta puzzle,x					; failure, unmake & try again
+	sta puzzle,x
 
+_return_false:
 	lda #1
 	pusha
-	jmp return					; this triggers backtracking
+	jmp _return
 
-success:
-	drop
+_return_true:
 	lda #0
 	pusha
+	jmp _return
 
-return:
+_return:
 	pla
+	ply
 	plx
 	rts
+
 .endproc
 
 ;;
@@ -694,15 +703,15 @@ test_epilogue
 reset:
 	jsr stack::init
 
-	jsr maths::_tests
-	jsr stack::_tests
-	jsr move_trans_tests
-	jsr start_position_tests
-	jsr used_in_row_tests
-	jsr used_in_column_tests
-	jsr used_in_box_tests
-	jsr is_available_tests
-	;jsr game
+	;jsr maths::_tests
+	;jsr stack::_tests
+	;jsr move_trans_tests
+	;jsr start_position_tests
+	;jsr used_in_row_tests
+	;jsr used_in_column_tests
+	;jsr used_in_box_tests
+	;jsr is_available_tests
+	jsr game
 
 loop:   jmp     loop
 
