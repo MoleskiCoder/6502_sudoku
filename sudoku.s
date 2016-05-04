@@ -6,6 +6,7 @@
 
 ;
 ; Clock cycles: 2,080,575,831
+;		1,999,549,983
 ;
 
         .setcpu "6502"
@@ -109,7 +110,7 @@ CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified row matches the given number.
 
-.proc is_used_in_row ; ( number n -- f )
+.proc is_used_in_row ; ( number n -- A:f )
 
 _number := scratch
 _x = _number + 1
@@ -131,16 +132,15 @@ loop:
 	dey
 	bne loop
 fail:
-	lda #1
-	pusha
-return:
 	ldy _y
 	ldx _x
+	lda #1
 	rts
 success:
+	ldy _y
+	ldx _x
 	lda #0
-	pusha
-	jmp return
+	rts
 .endproc
 
 
@@ -149,7 +149,7 @@ success:
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified column matches the given number.
 
-.proc is_used_in_column ; ( number n -- f )
+.proc is_used_in_column ; ( number n -- A:f )
 
 _number := scratch
 _x = _number + 1
@@ -174,16 +174,15 @@ loop:
 	dey
 	bne loop
 fail:
-	lda #1
-	pusha
-return:
 	ldy _y
 	ldx _x
+	lda #1
 	rts
 success:
+	ldy _y
+	ldx _x
 	lda #0
-	pusha
-	jmp return
+	rts
 .endproc
 
 
@@ -192,7 +191,7 @@ success:
 ; Returns a boolean which indicates whether any assigned entry
 ; within the specified 3x3 box matches the given number.
 
-.proc is_used_in_box ; ( number n -- f )
+.proc is_used_in_box ; ( number n -- A:f )
 
 _number := scratch
 _x = _number + 1
@@ -222,17 +221,16 @@ loop:
 	bne loop
 fail:
 	drop
-	lda #1
-	pusha
-return:
 	ldy _y
 	ldx _x
+	lda #1
 	rts
 success:
 	drop
+	ldy _y
+	ldx _x
 	lda #0
-	pusha
-	jmp return
+	rts
 .endproc
 
 
@@ -242,31 +240,26 @@ success:
 ; number to the given row, column location.As assignment is legal if it that
 ; number is not already used in the row, column, or box.
 
-.proc is_available ; ( number n -- f )
+.proc is_available ; ( number n -- A:f )
 
 	two_dup
 	jsr is_used_in_row
-	popa
 	beq used_drop
 		
 	two_dup
 	jsr is_used_in_column
-	popa
 	beq used_drop
 
 	jsr is_used_in_box
-	popa
 	beq used
 
 	lda #0
-	beq return
+	rts
 
 used_drop:
 	two_drop
 used:
 	lda #1
-return:
-	pusha
 	rts
 .endproc
 
@@ -284,7 +277,7 @@ return:
 ; been examined and none worked out, return false to backtrack to previous
 ; decision point.
 
-.proc solve ; ( n -- f )
+.proc solve ; ( n -- A:f )
 
 	phx
 
@@ -298,7 +291,10 @@ return:
 	inx
 	pushx
 	jsr solve
-	jmp _return
+	pusha
+	plx
+	popa
+	rts
 
 _begin_loop:
 	ldy #1
@@ -307,7 +303,6 @@ _loop:
 	pushy
 	pushx
 	jsr is_available
-	popa
 	bne _loop_continue
 
 	tya
@@ -321,7 +316,6 @@ _loop:
 	plx
 
 	jsr solve
-	popa
 
 	popy
 
@@ -337,17 +331,13 @@ _loop_continue:
 	sta puzzle,x
 
 _return_false:
+	plx
 	lda #1
-	pusha
-	jmp _return
+	rts
 
 _return_true:
-	lda #0
-	pusha
-	jmp _return
-
-_return:
 	plx
+	lda #0
 	rts
 
 .endproc
@@ -693,7 +683,6 @@ test_epilogue
 	lda #0
 	pusha
 	jsr solve
-	popa
 	bne fail
 
 test_epilogue
