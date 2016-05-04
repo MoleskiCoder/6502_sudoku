@@ -47,7 +47,8 @@
 .endmacro
 
 .macro top
-	jsr stack::top
+	popa
+	pusha
 .endmacro
 
 .macro over
@@ -55,7 +56,10 @@
 .endmacro
 
 .macro dup
-	jsr stack::dup
+	pha
+	top
+	pusha
+	pla
 .endmacro
 
 .macro swap
@@ -63,7 +67,9 @@
 .endmacro
 
 .macro drop
-	jsr stack::drop
+	pha
+	popa
+	pla
 .endmacro
 
 .macro two_dup
@@ -90,31 +96,6 @@ addrw := stackp + 1
 	lda stackp
 	rts
 .endproc
-
-
-.proc top
-	popa
-	pusha
-	rts
-.endproc
-
-
-.proc dup
-	pha
-	top
-	pusha
-	pla
-	rts
-.endproc
-
-
-.proc drop
-	pha
-	popa
-	pla
-	rts
-.endproc
-
 
 .proc swap
 	pha
@@ -254,7 +235,7 @@ top_test:
 	lda #$10
 	pusha
 	lda #$20
-	jsr top
+	top
 	cmp #$10
 	beq top_test_continue
 	jmp fail

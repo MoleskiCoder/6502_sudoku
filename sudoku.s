@@ -7,6 +7,7 @@
 ;
 ; Clock cycles: 2,080,575,831
 ;		1,999,549,983
+;		1,966,492,180
 ;
 
         .setcpu "6502"
@@ -396,7 +397,9 @@ test_fail
 _move2xy_pass:
 	popx
 	cpx #1
-	bne fail
+	beq _move2xy_pass_2
+	jmp fail
+_move2xy_pass_2:
 	verify_empty_stack
 
 	lda #19
