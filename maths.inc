@@ -65,18 +65,16 @@ L2:	ROL _numerator
 	RTS
 .endproc
 
-.proc div ; ( numerator denominator -- quotient )
-	jsr divmod
+.macro div ; ( numerator denominator -- quotient )
+	jsr maths::divmod
 	swap
 	drop
-	rts
-.endproc
+.endmacro
 
-.proc mod ; ( numerator denominator -- modulus )
-	jsr divmod
+.macro mod ; ( numerator denominator -- modulus )
+	jsr maths::divmod
 	drop
-	rts
-.endproc
+.endmacro
 
 
 ; http://6502org.wikidot.com/software-math-intmul
@@ -116,11 +114,13 @@ L2:	DEX
 	jsr add
 	popa
 	cmp #7
-	bne fail
+	beq _tests_subtract
+	jmp fail
 
 	nop
 	nop
 
+_tests_subtract:
 	; subtract
 	lda #7
 	pusha
@@ -155,7 +155,7 @@ L2:	DEX
 	pusha
 	lda #9
 	pusha
-	jsr div
+	div
 	popa
 	cmp #2
 	bne fail
@@ -168,7 +168,7 @@ L2:	DEX
 	pusha
 	lda #9
 	pusha
-	jsr mod
+	mod
 	popa
 	cmp #1
 	bne fail

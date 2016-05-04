@@ -27,7 +27,7 @@ puzzle:
 
 ; Scratchpad area.  Not sure how long this will be.  Aliased within "proc" scope.
 
-scratch := 80
+scratch := $80
 
 ; Some useful constants
 
@@ -45,75 +45,60 @@ CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
 ; ** Move and grid position translation methods
 ;
 
-.proc move2xy ; ( n -- x y )
-	pha
+.macro move2xy ; ( n -- x y )
 	lda #BOARD_SIZE
 	pusha
 	jsr maths::divmod
-	pla
-	rts
-.endproc
+.endmacro
 
-.proc move2x ; ( n -- x )
-	jsr move2xy
+.macro move2x ; ( n -- x )
+	move2xy
 	drop
-	rts
-.endproc
+.endmacro
 
-.proc move2y ; ( n -- x )
-	jsr move2xy
+.macro move2y ; ( n -- x )
+	move2xy
 	swap
 	drop
-	rts
-.endproc
+.endmacro
 
-.proc xy2move ; ( x y -- n )
-	pha
+.macro xy2move ; ( x y -- n )
 	lda #BOARD_SIZE
 	pusha
 	jsr maths::multiply
 	jsr maths::add
-	pla
-	rts
-.endproc
+.endmacro
 
 
 ; ** Row, column and box start positions
 
-.proc move2row_start ; ( n -- n )
-	jsr move2y
+.macro move2row_start ; ( n -- n )
+	move2y
 	lda #BOARD_SIZE
 	pusha
 	jsr maths::multiply
-	rts
-.endproc
+.endmacro
 
-.proc move2column_start ; ( n -- n )
-	jsr move2x
-	rts
-.endproc
+.macro move2column_start ; ( n -- n )
+	move2x
+.endmacro
 
-.proc box_side_start ; ( n -- n )
-	pha
+.macro box_side_start ; ( n -- n )
 	dup
 	lda #BOX_SIZE
 	pusha
-	jsr maths::mod
+	mod
 	jsr maths::subtract
-	pla
-	rts
-.endproc
+.endmacro
 
-.proc move2box_start ; ( n -- n )
-	jsr move2xy
-	jsr box_side_start
+.macro move2box_start ; ( n -- n )
+	move2xy
+	box_side_start
 	swap
-	jsr box_side_start
+	box_side_start
 	swap
-	jsr xy2move
-	rts
-.endproc
-
+	xy2move
+.endmacro
 
 ; Function: is_used_in_row
 ; ------------------------
@@ -123,11 +108,13 @@ CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
 .proc is_used_in_row ; ( number n -- f )
 
 _number := scratch
+_x = _number + 1
+_y = _x + 1
 
-	pha
-	phx
-	phy
-	jsr move2row_start
+	stx _x
+	sty _y
+
+	move2row_start
 	popx
 	popa
 	sta _number
@@ -143,14 +130,13 @@ fail:
 	lda #1
 	pusha
 return:
-	ply
-	plx
-	pla
+	ldy _y
+	ldx _x
 	rts
 success:
 	lda #0
 	pusha
-	jmp return;
+	jmp return
 .endproc
 
 
@@ -162,11 +148,12 @@ success:
 .proc is_used_in_column ; ( number n -- f )
 
 _number := scratch
+_x = _number + 1
+_y = _x + 1
 
-	pha
-	phx
-	phy
-	jsr move2column_start
+	stx _x
+	sty _y
+	move2column_start
 	popx
 	popa
 	sta _number
@@ -186,14 +173,13 @@ fail:
 	lda #1
 	pusha
 return:
-	ply
-	plx
-	pla
+	ldy _y
+	ldx _x
 	rts
 success:
 	lda #0
 	pusha
-	jmp return;
+	jmp return
 .endproc
 
 
@@ -205,11 +191,12 @@ success:
 .proc is_used_in_box ; ( number n -- f )
 
 _number := scratch
+_x = _number + 1
+_y = _x + 1
 
-	pha
-	phx
-	phy
-	jsr move2box_start
+	stx _x
+	sty _y
+	move2box_start
 	swap
 	popa
 	sta _number
@@ -220,7 +207,7 @@ loop:
 	lda #BOX_SIZE
 	pusha
 	jsr maths::divmod
-	jsr xy2move
+	xy2move
 	jsr maths::add
 	popx
 	lda puzzle,x
@@ -234,15 +221,14 @@ fail:
 	lda #1
 	pusha
 return:
-	ply
-	plx
-	pla
+	ldy _y
+	ldx _x
 	rts
 success:
 	drop
 	lda #0
 	pusha
-	jmp return;
+	jmp return
 .endproc
 
 
@@ -253,8 +239,6 @@ success:
 ; number is not already used in the row, column, or box.
 
 .proc is_available ; ( number n -- f )
-
-	pha
 
 	two_dup
 	jsr is_used_in_row
@@ -279,7 +263,6 @@ used:
 	lda #1
 return:
 	pusha
-	pla
 	rts
 .endproc
 
@@ -300,8 +283,6 @@ return:
 .proc solve ; ( n -- f )
 
 	phx
-	phy
-	pha
 
 	popx
 	cpx #CELL_COUNT
@@ -328,6 +309,8 @@ _loop:
 	tya
 	sta puzzle,x
 
+	pushy
+
 	phx
 	inx
 	pushx
@@ -335,6 +318,10 @@ _loop:
 
 	jsr solve
 	popa
+
+	popy
+
+	cmp #0
 	beq _return_true
 
 _loop_continue:
@@ -356,13 +343,10 @@ _return_true:
 	jmp _return
 
 _return:
-	pla
-	ply
 	plx
 	rts
 
 .endproc
-
 ;;
 
 .macro verify_empty_stack
@@ -410,10 +394,12 @@ test_fail
 
 	lda #19
 	pusha
-	jsr move2xy
+	move2xy
 	popy
 	cpy #2
-	bne fail
+	beq _move2xy_pass
+	jmp fail
+_move2xy_pass:
 	popx
 	cpx #1
 	bne fail
@@ -421,7 +407,7 @@ test_fail
 
 	lda #19
 	pusha
-	jsr move2x
+	move2x
 	popx
 	cpx #1
 	bne fail
@@ -429,7 +415,7 @@ test_fail
 
 	lda #19
 	pusha
-	jsr move2y
+	move2y
 	popy
 	cpy #2
 	bne fail
@@ -439,7 +425,7 @@ test_fail
 	pushx
 	ldy #2
 	pushy
-	jsr xy2move
+	xy2move
 	popa
 	cmp #19
 	bne fail
@@ -457,42 +443,50 @@ test_epilogue
 
 	lda #7
 	pusha
-	jsr box_side_start
+	box_side_start
 	popa
 	cmp #6
-	bne fail
+	beq _move2row_start_test
+	jmp fail
 
+_move2row_start_test:
 	lda #19
 	pusha
-	jsr move2row_start
+	move2row_start
 	popa
 	cmp #18
-	bne fail
+	beq _move2column_start_test
+	jmp fail
 
+_move2column_start_test:
 	lda #19
 	pusha
-	jsr move2column_start
+	move2column_start
 	popa
 	cmp #1
-	bne fail
+	beq _move2box_start_test_2
+	jmp fail
 
+_move2box_start_test_1:
 	lda #19
 	pusha
-	jsr move2box_start
+	move2box_start
 	popa
 	cmp #0
-	bne fail
+	beq _move2box_start_test_2
+	jmp fail
 
+_move2box_start_test_2:
 	lda #36
 	pusha
-	jsr move2box_start
+	move2box_start
 	popa
 	cmp #27
 	bne fail
 
 	lda #80
 	pusha
-	jsr move2box_start
+	move2box_start
 	popa
 	cmp #60
 	bne fail
@@ -531,7 +525,6 @@ test_epilogue
 	jsr is_used_in_row
 	popa
 	bne fail
-	verify_empty_stack
 
 	lda #1
 	pusha
@@ -540,6 +533,8 @@ test_epilogue
 	jsr is_used_in_row
 	popa
 	beq fail
+
+	verify_empty_stack
 
 test_epilogue
 
@@ -574,6 +569,7 @@ test_epilogue
 	jsr is_used_in_column
 	popa
 	beq fail
+
 	verify_empty_stack
 
 test_epilogue
