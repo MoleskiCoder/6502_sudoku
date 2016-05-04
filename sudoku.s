@@ -4,6 +4,10 @@
 ; A straightforward port from C to 6502 assembler (although feeling like Forth!)
 ;
 
+;
+; Clock cycles: 2,080,575,831
+;
+
         .setcpu "6502"
 
         .segment "OS"
