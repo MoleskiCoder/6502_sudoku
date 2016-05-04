@@ -88,7 +88,7 @@
 control := $10
 
 stackp := control
-addrw := stackp + 1
+savex := stackp + 1
 
 
 ; Return the position of the stack in A
@@ -130,48 +130,35 @@ addrw := stackp + 1
 ; Initialise the stack to an empty state
 .proc init
 
-stackh = $02
-
-addrl := addrw
-addrh := addrl + 1
-
 	pha
 
 	lda #$ff
 	sta stackp
-
-	lda #stackh
-	sta addrh
-
-	lda #0
-	sta addrl
 
 	pla
 	rts
 .endproc
 
 
-savey := addrw + 2
-
 .proc pusha
-	sty savey
-	ldy stackp
-	sta (addrw),y
-	dey
-	sty stackp
-	ldy savey
+	stx savex
+	ldx stackp
+	sta 0,x
+	dex
+	stx stackp
+	ldx savex
 	rts
 .endproc
 
 
 .proc popa
-	sty savey
-	ldy stackp
-	iny
-	sty stackp
-	lda (addrw),y
+	stx savex
+	ldx stackp
+	inx
+	stx stackp
+	lda 0,x
 	pha
-	ldy savey
+	ldx savex
 	pla
 	rts
 .endproc
