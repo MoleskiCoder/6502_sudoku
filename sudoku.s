@@ -554,7 +554,6 @@ test_epilogue
 	lda #18
 	pusha
 	jsr is_used_in_row
-	popa
 	bne fail
 
 	lda #9
@@ -562,7 +561,6 @@ test_epilogue
 	lda #18
 	pusha
 	jsr is_used_in_row
-	popa
 	bne fail
 
 	lda #2
@@ -570,7 +568,6 @@ test_epilogue
 	lda #18
 	pusha
 	jsr is_used_in_row
-	popa
 	bne fail
 
 	lda #1
@@ -578,7 +575,6 @@ test_epilogue
 	lda #18
 	pusha
 	jsr is_used_in_row
-	popa
 	beq fail
 
 	verify_empty_stack
@@ -598,7 +594,6 @@ test_epilogue
 	lda #5
 	pusha
 	jsr is_used_in_column
-	popa
 	bne fail
 
 	lda #5
@@ -606,7 +601,6 @@ test_epilogue
 	lda #5
 	pusha
 	jsr is_used_in_column
-	popa
 	bne fail
 
 	lda #9
@@ -614,7 +608,6 @@ test_epilogue
 	lda #5
 	pusha
 	jsr is_used_in_column
-	popa
 	beq fail
 
 	verify_empty_stack
@@ -634,7 +627,6 @@ test_epilogue
 	lda #80
 	pusha
 	jsr is_used_in_box
-	popa
 	bne fail
 
 	lda #6
@@ -642,7 +634,6 @@ test_epilogue
 	lda #12
 	pusha
 	jsr is_used_in_box
-	popa
 	bne fail
 
 	lda #9
@@ -650,7 +641,6 @@ test_epilogue
 	lda #12
 	pusha
 	jsr is_used_in_box
-	popa
 	bne fail
 
 	lda #3
@@ -658,7 +648,6 @@ test_epilogue
 	lda #12
 	pusha
 	jsr is_used_in_box
-	popa
 	beq fail
 
 	verify_empty_stack
@@ -678,7 +667,6 @@ test_epilogue
 	lda #0
 	pusha
 	jsr is_available
-	popa
 	beq fail
 
 	lda #7
@@ -686,7 +674,6 @@ test_epilogue
 	lda #1
 	pusha
 	jsr is_available
-	popa
 	beq fail
 
 	lda #6
@@ -694,7 +681,6 @@ test_epilogue
 	lda #80
 	pusha
 	jsr is_available
-	popa
 	beq fail
 
 	lda #1
@@ -702,7 +688,6 @@ test_epilogue
 	lda #80
 	pusha
 	jsr is_available
-	popa
 	beq fail
 
 	lda #4
@@ -710,7 +695,6 @@ test_epilogue
 	lda #80
 	pusha
 	jsr is_available
-	popa
 	beq fail
 
 	lda #5
@@ -718,7 +702,6 @@ test_epilogue
 	lda #80
 	pusha
 	jsr is_available
-	popa
 	bne fail
 
 	verify_empty_stack
