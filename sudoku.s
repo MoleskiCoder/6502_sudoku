@@ -14,6 +14,7 @@
 ;		1,407,594,238
 ;		1,084,202,324	~9 minutes @ 2Mhz
 ;		969,892,885	~8 minutes @ 2Mhz
+;		890,722,830	~7 minutes @ 2Mhz
 
         .setcpu "6502"
 
@@ -148,13 +149,21 @@ table_move2row_start:
 	jsr maths::subtract
 .endmacro
 
+table_move2box_start:
+	.byte 0,  0,  0,  3,  3,  3,  6,  6,  6
+	.byte 0,  0,  0,  3,  3,  3,  6,  6,  6
+	.byte 0,  0,  0,  3,  3,  3,  6,  6,  6
+	.byte 27, 27, 27, 30, 30, 30, 33, 33, 33
+	.byte 27, 27, 27, 30, 30, 30, 33, 33, 33
+	.byte 27, 27, 27, 30, 30, 30, 33, 33, 33
+	.byte 54, 54, 54, 57, 57, 57, 60, 60, 60
+	.byte 54, 54, 54, 57, 57, 57, 60, 60, 60
+	.byte 54, 54, 54, 57, 57, 57, 60, 60, 60
+
 .macro move2box_start ; ( n -- n )
-	move2xy
-	box_side_start
-	swap
-	box_side_start
-	swap
-	xy2move
+	popx
+	lda table_move2box_start,x
+	pusha
 .endmacro
 
 ; Function: is_used_in_row
