@@ -1,7 +1,5 @@
 .scope stack
 
-; Handy macros, not obligatory!
-
 .macro phx
 	txa
 	pha
@@ -23,11 +21,23 @@
 .endmacro
 
 .macro pusha
-	jsr stack::pusha
+	stx stack::savex
+	ldx stack::stackp
+	sta 0,x
+	dex
+	stx stack::stackp
+	ldx stack::savex
 .endmacro
 
 .macro popa
-	jsr stack::popa
+	stx stack::savex
+	ldx stack::stackp
+	inx
+	stx stack::stackp
+	lda 0,x
+	pha
+	ldx stack::savex
+	pla
 .endmacro
 
 .macro pushx
@@ -140,30 +150,6 @@ savex := stackp + 1
 .endproc
 
 
-.proc pusha
-	stx savex
-	ldx stackp
-	sta 0,x
-	dex
-	stx stackp
-	ldx savex
-	rts
-.endproc
-
-
-.proc popa
-	stx savex
-	ldx stackp
-	inx
-	stx stackp
-	lda 0,x
-	pha
-	ldx savex
-	pla
-	rts
-.endproc
-
-
 .proc pushx
 	pha
 	txa
@@ -199,121 +185,5 @@ savex := stackp + 1
 	rts
 .endproc
 
-
-.proc _tests
-
-	ldx #0
-
-push_pop_test:
-	inx
-	lda #$10
-	pusha
-	lda #$20
-	popa
-	cmp #$10
-	beq top_test
-	jmp fail
-
-	nop
-	nop
-
-top_test:
-	inx
-	lda #$10
-	pusha
-	lda #$20
-	top
-	cmp #$10
-	beq top_test_continue
-	jmp fail
-top_test_continue:
-	popa
-
-	nop
-	nop
-
-swap_test:
-	inx
-	lda #$10
-	pusha
-	lda #$20
-	pusha
-	swap
-	popa
-	cmp #$10
-	bne fail
-	popa
-	cmp #$20
-	beq over_test
-	jmp fail
-
-	nop
-	nop
-
-over_test:
-	inx
-	lda #$10
-	pusha
-	lda #$20
-	pusha
-	over
-	popa
-	cmp #$10
-	bne fail
-	popa
-	cmp #$20
-	bne fail
-	popa
-	cmp #$10
-	beq two_dup_test
-	jmp fail
-
-	nop
-	nop
-
-two_dup_test:
-	inx
-
-	lda #$10
-	pusha
-	lda #$20
-	pusha
-
-	two_dup
-
-	popa
-	cmp #$20
-	beq two_dup_test_continue_1
-	jmp fail
-
-two_dup_test_continue_1:
-	popa
-	cmp #$10
-	beq two_dup_test_continue_2
-	jmp fail
-
-two_dup_test_continue_2:
-	popa
-	cmp #$20
-	beq two_dup_test_continue_3
-	jmp fail
-
-two_dup_test_continue_3:
-	popa
-	cmp #$10
-	beq stack_depth_test
-	jmp fail
-
-stack_depth_test:
-	jsr position
-	cmp #$ff
-	bne fail
-
-success:
-	ldx #0		; success marker!
-
-fail:
-	rts
-.endproc
 
 .endscope	; stack

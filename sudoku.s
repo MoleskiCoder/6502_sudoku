@@ -11,6 +11,8 @@
 ;		1,916,084,161
 ;		1,622,811,358	~13 minutes @ 2Mhz
 ;		1,447,350,749	~12 minutes @ 2Mhz
+;		1,407,594,238
+;		1,084,202,324	~9 minutes @ 2Mhz
 
         .setcpu "6502"
 
@@ -390,328 +392,11 @@ _return_true:
 	rts
 
 .endproc
-;;
 
-.macro verify_empty_stack
-	jsr stack::position
-	cmp #$ff
-	bne fail
-.endmacro
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;
-
-.macro test_return
-return:
-	jsr io::outstr
- 	.byte $a, 0
-	rts
-.endmacro
-
-.macro test_pass
-pass:
-	jsr io::outstr
- 	.asciiz "pass"
-	jmp return
-.endmacro
-
-.macro test_fail
-fail:
-	jsr io::outstr
- 	.asciiz "fail"
-	jmp return
-.endmacro
-
-.macro test_epilogue
-	jmp pass
-test_return
-test_pass
-test_fail
-.endmacro
-
-;;
-
-.proc move_trans_tests
-
-	jsr io::outstr
- 	.asciiz "Move translation tests: "
-
-	lda #19
-	pusha
-	move2xy
-	popy
-	cpy #2
-	beq _move2xy_pass
-	jmp fail
-_move2xy_pass:
-	popx
-	cpx #1
-	beq _move2xy_pass_2
-	jmp fail
-_move2xy_pass_2:
-	;verify_empty_stack
-
-	lda #19
-	pusha
-	move2x
-	popx
-	cpx #1
-	bne fail
-	verify_empty_stack
-
-	lda #19
-	pusha
-	move2y
-	popy
-	cpy #2
-	bne fail
-	verify_empty_stack
-
-	ldx #1
-	pushx
-	ldy #2
-	pushy
-	xy2move
-	popa
-	cmp #19
-	bne fail
-	verify_empty_stack
-
-test_epilogue
-
-.endproc
-
-
-.proc start_position_tests
-
-	jsr io::outstr
- 	.asciiz "Start position tests: "
-
-	lda #7
-	pusha
-	box_side_start
-	popa
-	cmp #6
-	beq _move2row_start_test
-	jmp fail
-
-_move2row_start_test:
-	lda #19
-	pusha
-	move2row_start
-	popa
-	cmp #18
-	beq _move2column_start_test
-	jmp fail
-
-_move2column_start_test:
-	lda #19
-	pusha
-	move2column_start
-	popa
-	cmp #1
-	beq _move2box_start_test_2
-	jmp fail
-
-_move2box_start_test_1:
-	lda #19
-	pusha
-	move2box_start
-	popa
-	cmp #0
-	beq _move2box_start_test_2
-	jmp fail
-
-_move2box_start_test_2:
-	lda #36
-	pusha
-	move2box_start
-	popa
-	cmp #27
-	beq _move2box_start_test_3
-	jmp fail
-
-_move2box_start_test_3:
-	lda #80
-	pusha
-	move2box_start
-	popa
-	cmp #60
-	bne fail
-	verify_empty_stack
-
-test_epilogue
-
-.endproc
-
-
-.proc used_in_row_tests
-
-	jsr io::outstr
- 	.asciiz "Used in row tests: "
-
-	lda #7
-	pusha
-	lda #18
-	pusha
-	jsr is_used_in_row
-	bne fail
-
-	lda #9
-	pusha
-	lda #18
-	pusha
-	jsr is_used_in_row
-	bne fail
-
-	lda #2
-	pusha
-	lda #18
-	pusha
-	jsr is_used_in_row
-	bne fail
-
-	lda #1
-	pusha
-	lda #18
-	pusha
-	jsr is_used_in_row
-	beq fail
-
-	verify_empty_stack
-
-test_epilogue
-
-.endproc
-
-
-.proc used_in_column_tests
-
-	jsr io::outstr
- 	.asciiz "Used in column tests: "
-
-	lda #7
-	pusha
-	lda #5
-	pusha
-	jsr is_used_in_column
-	bne fail
-
-	lda #5
-	pusha
-	lda #5
-	pusha
-	jsr is_used_in_column
-	bne fail
-
-	lda #9
-	pusha
-	lda #5
-	pusha
-	jsr is_used_in_column
-	beq fail
-
-	verify_empty_stack
-
-test_epilogue
-
-.endproc
-
-
-.proc used_in_box_tests
-
-	jsr io::outstr
- 	.asciiz "Used in box tests: "
-
-	lda #6
-	pusha
-	lda #80
-	pusha
-	jsr is_used_in_box
-	bne fail
-
-	lda #6
-	pusha
-	lda #12
-	pusha
-	jsr is_used_in_box
-	bne fail
-
-	lda #9
-	pusha
-	lda #12
-	pusha
-	jsr is_used_in_box
-	bne fail
-
-	lda #3
-	pusha
-	lda #12
-	pusha
-	jsr is_used_in_box
-	beq fail
-
-	verify_empty_stack
-
-test_epilogue
-
-.endproc
-
-
-.proc is_available_tests
-
-	jsr io::outstr
- 	.asciiz "Is available tests: "
-
-	lda #7
-	pusha
-	lda #0
-	pusha
-	jsr is_available
-	beq fail
-
-	lda #7
-	pusha
-	lda #1
-	pusha
-	jsr is_available
-	beq fail
-
-	lda #6
-	pusha
-	lda #80
-	pusha
-	jsr is_available
-	beq fail
-
-	lda #1
-	pusha
-	lda #80
-	pusha
-	jsr is_available
-	beq fail
-
-	lda #4
-	pusha
-	lda #80
-	pusha
-	jsr is_available
-	beq fail
-
-	lda #5
-	pusha
-	lda #80
-	pusha
-	jsr is_available
-	bne fail
-
-	verify_empty_stack
-
-test_epilogue
-
-.endproc
-
-
-.proc game
+reset:
+	jsr stack::init
 
 	jsr io::outstr
  	.asciiz "Solving puzzle: "
@@ -721,25 +406,20 @@ test_epilogue
 	jsr solve
 	bne fail
 
-test_epilogue
+	jsr io::outstr
+ 	.asciiz "pass"
+	jmp end
 
-.endproc
+fail:
+	jsr io::outstr
+ 	.asciiz "fail"
 
-reset:
-	jsr stack::init
+end:
+	jsr io::outstr
+ 	.byte $a, 0
+	brk
 
-	;jsr maths::_tests
-	;jsr stack::_tests
-	;jsr move_trans_tests
-	;jsr start_position_tests
-	;jsr used_in_row_tests
-	;jsr used_in_column_tests
-	;jsr used_in_box_tests
-	;jsr is_available_tests
-	jsr game
-
-loop:   jmp     loop
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 nmi:    jmp     nmi
 
