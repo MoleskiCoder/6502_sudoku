@@ -13,6 +13,7 @@
 ;		1,447,350,749	~12 minutes @ 2Mhz
 ;		1,407,594,238
 ;		1,084,202,324	~9 minutes @ 2Mhz
+;		969,892,885	~8 minutes @ 2Mhz
 
         .setcpu "6502"
 
@@ -269,7 +270,8 @@ loop:
 	beq success
 	iny
 	cpy #BOARD_SIZE
-	bne loop
+	beq fail
+	jmp loop
 fail:
 	drop
 	ldy _y
@@ -334,8 +336,10 @@ used:
 
 	popx
 	cpx #CELL_COUNT
-	beq _return_true
+	bne _not_finished
+	jmp _return_true
 
+_not_finished:
 	lda puzzle,x
 	beq _begin_loop
 

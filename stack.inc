@@ -41,19 +41,31 @@
 .endmacro
 
 .macro pushx
-	jsr stack::pushx
+	pha
+	txa
+	pusha
+	pla
 .endmacro
 
 .macro popx
-	jsr stack::popx
+	pha
+	popa
+	tax
+	pla
 .endmacro
 
 .macro pushy
-	jsr stack::pushy
+	pha
+	tya
+	pusha
+	pla
 .endmacro
 
 .macro popy
-	jsr stack::popy
+	pha
+	popa
+	tay
+	pla
 .endmacro
 
 .macro top
@@ -145,42 +157,6 @@ savex := stackp + 1
 	lda #$ff
 	sta stackp
 
-	pla
-	rts
-.endproc
-
-
-.proc pushx
-	pha
-	txa
-	pusha
-	pla
-	rts
-.endproc
-
-
-.proc popx
-	pha
-	popa
-	tax
-	pla
-	rts
-.endproc
-
-
-.proc pushy
-	pha
-	tya
-	pusha
-	pla
-	rts
-.endproc
-
-
-.proc popy
-	pha
-	popa
-	tay
 	pla
 	rts
 .endproc
