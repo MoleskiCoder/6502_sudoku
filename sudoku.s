@@ -5,10 +5,11 @@
 ;
 
 ;
-; Clock cycles: 2,080,575,831
+; Clock cycles: 2,080,575,831	~17 minutes @ 2Mhz
 ;		1,999,549,983
 ;		1,966,492,180
 ;		1,916,084,161
+;		1,622,811,358	~13 minutes @ 2Mhz
 
         .setcpu "6502"
 
@@ -51,21 +52,43 @@ CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
 ; ** Move and grid position translation methods
 ;
 
+table_move2xy:
+	.byte 0,0, 1,0, 2,0, 3,0, 4,0, 5,0, 6,0, 7,0, 8,0
+	.byte 0,1, 1,1, 2,1, 3,1, 4,1, 5,1, 6,1, 7,1, 8,1
+	.byte 0,2, 1,2, 2,2, 3,2, 4,2, 5,2, 6,2, 7,2, 8,2
+	.byte 0,3, 1,3, 2,3, 3,3, 4,3, 5,3, 6,3, 7,3, 8,3
+	.byte 0,4, 1,4, 2,4, 3,4, 4,4, 5,4, 6,4, 7,4, 8,4
+	.byte 0,5, 1,5, 2,5, 3,5, 4,5, 5,5, 6,5, 7,5, 8,5
+	.byte 0,6, 1,6, 2,6, 3,6, 4,6, 5,6, 6,6, 7,6, 8,6
+	.byte 0,7, 1,7, 2,7, 3,7, 4,7, 5,7, 6,7, 7,7, 8,7
+	.byte 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,8, 7,8, 8,8
+
 .macro move2xy ; ( n -- x y )
-	lda #BOARD_SIZE
+	popa
+	asl a
+	tax
+	lda table_move2xy,x
 	pusha
-	jsr maths::divmod
+	inx
+	lda table_move2xy,x
+	pusha
 .endmacro
 
 .macro move2x ; ( n -- x )
-	move2xy
-	drop
+	popa
+	asl a
+	tax
+	lda table_move2xy,x
+	pusha
 .endmacro
 
 .macro move2y ; ( n -- x )
-	move2xy
-	swap
-	drop
+	popa
+	asl a
+	tax
+	inx
+	lda table_move2xy,x
+	pusha
 .endmacro
 
 .macro xy2move ; ( x y -- n )
@@ -400,7 +423,7 @@ _move2xy_pass:
 	beq _move2xy_pass_2
 	jmp fail
 _move2xy_pass_2:
-	verify_empty_stack
+	;verify_empty_stack
 
 	lda #19
 	pusha
@@ -479,8 +502,10 @@ _move2box_start_test_2:
 	move2box_start
 	popa
 	cmp #27
-	bne fail
+	beq _move2box_start_test_3
+	jmp fail
 
+_move2box_start_test_3:
 	lda #80
 	pusha
 	move2box_start
