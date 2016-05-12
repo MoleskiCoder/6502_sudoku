@@ -16,6 +16,7 @@
 ;		969,892,885	~8 minutes @ 2Mhz
 ;		890,722,830	~7 minutes @ 2Mhz
 ;		764,797,601	~6 minutes @ 2Mhz
+;		742,956,409
 
         .setcpu "6502"
 
@@ -53,6 +54,9 @@ CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
 .include "stack.inc"
 .include "maths.inc"
 .include "io.inc"
+
+.export solve, is_available
+.export is_used_in_row, is_used_in_column, is_used_in_box
 
 ;
 ; ** Move and grid position translation methods
@@ -115,7 +119,7 @@ table_y2row_start:
 	popx
 	lda table_y2row_start,x
 	pusha
-	jsr maths::add
+	add
 .endmacro
 
 
@@ -223,7 +227,7 @@ loop:
 	pushx
 	lda #BOARD_SIZE
 	pusha
-	jsr maths::add
+	add
 	popx
 	dey
 	bne loop
@@ -273,7 +277,7 @@ loop:
 
 	xy2move
 
-	jsr maths::add
+	add
 	popx
 	lda puzzle,x
 	cmp _number

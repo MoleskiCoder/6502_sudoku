@@ -4,31 +4,27 @@
 control := $20
 
 
-.proc add ; ( first second -- result )
+.export divmod, multiply
 
-_scratch := control
 
+.macro add ; ( first second -- result )
 	popa
-	sta _scratch
+	sta maths::control
 	clc
 	popa
-	adc _scratch
+	adc maths::control
 	pusha
-	rts
-.endproc
+.endmacro
 
-.proc subtract ; ( first second -- result )
 
-_scratch := control
-
+.macro subtract ; ( first second -- result )
 	popa
-	sta scratch
+	sta maths::control
 	popa
 	sec
-	sbc scratch
+	sbc maths::control
 	pusha
-	rts
-.endproc
+.endmacro
 
 
 ; http://6502org.wikidot.com/software-math-intdiv

@@ -112,6 +112,7 @@ control := $10
 stackp := control
 savex := stackp + 1
 
+.export position, swap, over
 
 ; Return the position of the stack in A
 .proc position
