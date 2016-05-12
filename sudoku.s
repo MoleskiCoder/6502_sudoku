@@ -15,6 +15,7 @@
 ;		1,084,202,324	~9 minutes @ 2Mhz
 ;		969,892,885	~8 minutes @ 2Mhz
 ;		890,722,830	~7 minutes @ 2Mhz
+;		764,797,601	~6 minutes @ 2Mhz
 
         .setcpu "6502"
 
@@ -141,14 +142,6 @@ table_move2row_start:
 	move2x
 .endmacro
 
-.macro box_side_start ; ( n -- n )
-	dup
-	lda #BOX_SIZE
-	pusha
-	mod
-	jsr maths::subtract
-.endmacro
-
 table_move2box_start:
 	.byte 0,  0,  0,  3,  3,  3,  6,  6,  6
 	.byte 0,  0,  0,  3,  3,  3,  6,  6,  6
@@ -246,6 +239,11 @@ success:
 	rts
 .endproc
 
+table_is_used_in_box_x:
+	.byte 0,  1,  2,  0,  1,  2,  0,  1,  2
+
+table_is_used_in_box_y:
+	.byte 0,  0,  0,  1,  1,  1,  2,  2,  2
 
 ; Function: is_used_in_box
 ; ------------------------
@@ -267,11 +265,14 @@ _y = _x + 1
 	ldy #0
 loop:
 	dup
-	pushy
-	lda #BOX_SIZE
+
+	lda table_is_used_in_box_x,y
 	pusha
-	jsr maths::divmod
+	lda table_is_used_in_box_y,y
+	pusha
+
 	xy2move
+
 	jsr maths::add
 	popx
 	lda puzzle,x
