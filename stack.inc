@@ -73,10 +73,6 @@
 	pusha
 .endmacro
 
-.macro over
-	jsr stack::over
-.endmacro
-
 .macro dup
 	pha
 	top
@@ -112,7 +108,7 @@ control := $10
 stackp := control
 savex := stackp + 1
 
-.export position, swap, over
+.export position, swap
 
 ; Return the position of the stack in A
 .proc position
@@ -136,7 +132,7 @@ savex := stackp + 1
 .endproc
 
 
-.proc over
+.macro over
 	pha
 	phx
 	popa
@@ -146,8 +142,7 @@ savex := stackp + 1
 	pushx
 	plx
 	pla
-	rts
-.endproc
+.endmacro
 
 
 ; Initialise the stack to an empty state

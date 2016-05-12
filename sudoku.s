@@ -4,8 +4,7 @@
 ; A straightforward port from C to 6502 assembler (although feeling like Forth!)
 ;
 
-;
-; Clock cycles: 2,080,575,831	~17 minutes @ 2Mhz
+; Clock cycles: 2,080,575,831	17 minutes 20 seconds @ 2Mhz
 ;		1,999,549,983
 ;		1,966,492,180
 ;		1,916,084,161
@@ -15,8 +14,9 @@
 ;		1,084,202,324	~9 minutes @ 2Mhz
 ;		969,892,885	~8 minutes @ 2Mhz
 ;		890,722,830	~7 minutes @ 2Mhz
-;		764,797,601	~6 minutes @ 2Mhz
+;		764,797,601	6 minutes 22 seconds @ 2Mhz
 ;		742,956,409
+;		727,512,717	6 minutes @ 2Mhz
 
         .setcpu "6502"
 
@@ -311,12 +311,16 @@ success:
 
 	two_dup
 	jsr is_used_in_row
-	beq used_drop
-		
+	bne row_available
+	jmp used_drop
+
+row_available:
 	two_dup
 	jsr is_used_in_column
-	beq used_drop
+	bne column_available
+	jmp used_drop
 
+column_available:
 	jsr is_used_in_box
 	beq used
 
