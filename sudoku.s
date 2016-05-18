@@ -84,23 +84,9 @@ table_move2y:
 	.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
 	.byte 8, 8, 8, 8, 8, 8, 8, 8, 8
 
-.macro move2xy ; ( n -- x y )
-	popx
-	lda table_move2x,x
-	pusha
-	lda table_move2y,x
-	pusha
-.endmacro
-
 .macro move2x ; ( n -- x )
 	popx
 	lda table_move2x,x
-	pusha
-.endmacro
-
-.macro move2y ; ( n -- x )
-	popx
-	lda table_move2y,x
 	pusha
 .endmacro
 
