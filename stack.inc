@@ -1,5 +1,7 @@
 .scope stack
 
+.ifp02
+
 .macro phx
 	txa
 	pha
@@ -19,6 +21,8 @@
 	pla
 	tay
 .endmacro
+
+.endif
 
 .macro pusha
 	stx stack::savex
