@@ -18,6 +18,7 @@
 ;		742,956,409
 ;		727,512,717	6 minutes @ 2Mhz
 ;		718,335,675
+;		589,461,254	5 minutes @ 2MHz
 
         .setcpu "6502"
 
@@ -208,11 +209,13 @@ loop:
 	lda puzzle,x
 	cmp _number
 	beq success
-	pushx
-	lda #BOARD_SIZE
-	pusha
-	add
-	popx
+
+	; x += BOARD_SIZE
+	txa
+	clc
+	adc #BOARD_SIZE
+	tax
+
 	dey
 	bne loop
 fail:
