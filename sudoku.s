@@ -17,6 +17,7 @@
 ;		764,797,601	6 minutes 22 seconds @ 2Mhz
 ;		742,956,409
 ;		727,512,717	6 minutes @ 2Mhz
+;		718,335,675
 
         .setcpu "6502"
 
@@ -156,8 +157,7 @@ table_move2box_start:
 
 .proc is_used_in_row ; ( number n -- A:f )
 
-_number := scratch
-_x = _number + 1
+_x = scratch + 1
 _y = _x + 1
 
 	stx _x
@@ -166,11 +166,9 @@ _y = _x + 1
 	move2row_start
 	popx
 	popa
-	sta _number
 	ldy #BOARD_SIZE
 loop:
-	lda puzzle,x
-	cmp _number
+	cmp puzzle,x
 	beq success
 	inx
 	dey
