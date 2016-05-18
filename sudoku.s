@@ -19,6 +19,7 @@
 ;		727,512,717	6 minutes @ 2Mhz
 ;		718,335,675
 ;		589,461,254	5 minutes @ 2MHz
+;		500,568,464	~4 minutes @ 2Mhz
 
         .setcpu "6502"
 
@@ -260,19 +261,29 @@ loop:
 	lda table_is_used_in_box_x,y
 	pusha
 	lda table_is_used_in_box_y,y
-	pusha
 
-	xy2move
+	tax
 
-	add
-	popx
+	lda table_y2row_start,x
+
+	sta maths::control
+	clc
+	popa
+	adc maths::control
+
+	sta maths::control
+	clc
+	popa
+	adc maths::control
+
+	tax
+
 	lda puzzle,x
 	cmp _number
 	beq success
 	iny
 	cpy #BOARD_SIZE
-	beq fail
-	jmp loop
+	bne loop
 fail:
 	drop
 	ldy _y
