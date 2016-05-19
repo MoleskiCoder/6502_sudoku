@@ -20,6 +20,7 @@
 ;		718,335,675
 ;		589,461,254	5 minutes @ 2MHz
 ;		500,568,464	~4 minutes @ 2Mhz
+;		443,786,346	3 minutes 41 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -165,8 +166,9 @@ _y = _x + 1
 	stx _x
 	sty _y
 
-	move2row_start
-	popx
+	popy
+	ldx table_move2row_start,y
+
 	popa
 	ldy #BOARD_SIZE
 loop:
@@ -201,8 +203,10 @@ _y = _x + 1
 
 	stx _x
 	sty _y
-	move2column_start
-	popx
+
+	popy
+	ldx table_move2x,y
+
 	popa
 	sta _number
 	ldy #BOARD_SIZE
@@ -258,21 +262,12 @@ _y = _x + 1
 loop:
 	dup
 
+	clc
 	lda table_is_used_in_box_x,y
-	pusha
-	lda table_is_used_in_box_y,y
-
-	tax
-
-	lda table_y2row_start,x
+	ldx table_is_used_in_box_y,y
+	adc table_y2row_start,x
 
 	sta maths::control
-	clc
-	popa
-	adc maths::control
-
-	sta maths::control
-	clc
 	popa
 	adc maths::control
 
