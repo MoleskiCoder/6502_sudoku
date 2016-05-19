@@ -21,6 +21,7 @@
 ;		589,461,254	5 minutes @ 2MHz
 ;		500,568,464	~4 minutes @ 2Mhz
 ;		443,786,346	3 minutes 41 seconds @ 2Mhz
+;		438,652,298
 
         .setcpu "6502"
 
@@ -88,12 +89,6 @@ table_move2y:
 	.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
 	.byte 8, 8, 8, 8, 8, 8, 8, 8, 8
 
-.macro move2x ; ( n -- x )
-	popx
-	lda table_move2x,x
-	pusha
-.endmacro
-
 table_y2row_start:
 	.byte 0
 	.byte 9
@@ -104,14 +99,6 @@ table_y2row_start:
 	.byte 54
 	.byte 63
 	.byte 72
-
-.macro xy2move ; ( x y -- n )
-	popx
-	lda table_y2row_start,x
-	pusha
-	add
-.endmacro
-
 
 ; ** Row, column and box start positions
 
@@ -125,16 +112,6 @@ table_move2row_start:
 	.byte 54, 54, 54, 54, 54, 54, 54, 54, 54
 	.byte 63, 63, 63, 63, 63, 63, 63, 63, 63
 	.byte 72, 72, 72, 72, 72, 72, 72, 72, 72
-
-.macro move2row_start ; ( n -- n )
-	popx
-	lda table_move2row_start,x
-	pusha
-.endmacro
-
-.macro move2column_start ; ( n -- n )
-	move2x
-.endmacro
 
 table_move2box_start:
 	.byte 0,  0,  0,  3,  3,  3,  6,  6,  6
@@ -159,16 +136,8 @@ table_move2box_start:
 ; in the specified row matches the given number.
 
 .proc is_used_in_row ; ( number n -- A:f )
-
-_x = scratch + 1
-_y = _x + 1
-
-	stx _x
-	sty _y
-
 	popy
 	ldx table_move2row_start,y
-
 	popa
 	ldy #BOARD_SIZE
 loop:
@@ -177,15 +146,8 @@ loop:
 	inx
 	dey
 	bne loop
-fail:
-	ldy _y
-	ldx _x
 	lda #1
-	rts
 success:
-	ldy _y
-	ldx _x
-	lda #0
 	rts
 .endproc
 
@@ -198,15 +160,8 @@ success:
 .proc is_used_in_column ; ( number n -- A:f )
 
 _number := scratch
-_x = _number + 1
-_y = _x + 1
-
-	stx _x
-	sty _y
-
 	popy
 	ldx table_move2x,y
-
 	popa
 	sta _number
 	ldy #BOARD_SIZE
@@ -214,24 +169,15 @@ loop:
 	lda puzzle,x
 	cmp _number
 	beq success
-
-	; x += BOARD_SIZE
 	txa
 	clc
 	adc #BOARD_SIZE
 	tax
-
 	dey
 	bne loop
 fail:
-	ldy _y
-	ldx _x
 	lda #1
-	rts
 success:
-	ldy _y
-	ldx _x
-	lda #0
 	rts
 .endproc
 
@@ -249,11 +195,7 @@ table_is_used_in_box_y:
 .proc is_used_in_box ; ( number n -- A:f )
 
 _number := scratch
-_x = _number + 1
-_y = _x + 1
 
-	stx _x
-	sty _y
 	move2box_start
 	swap
 	popa
@@ -281,14 +223,10 @@ loop:
 	bne loop
 fail:
 	drop
-	ldy _y
-	ldx _x
 	lda #1
 	rts
 success:
 	drop
-	ldy _y
-	ldx _x
 	lda #0
 	rts
 .endproc
@@ -301,6 +239,13 @@ success:
 ; number is not already used in the row, column, or box.
 
 .proc is_available ; ( number n -- A:f )
+
+; One temporary byte used in column + box checking
+_x := scratch + 1
+_y = _x + 1
+
+	stx _x
+	sty _y
 
 	two_dup
 	jsr is_used_in_row
@@ -317,12 +262,16 @@ column_available:
 	jsr is_used_in_box
 	beq used
 
+	ldx _x
+	ldy _y
 	lda #0
 	rts
 
 used_drop:
 	two_drop
 used:
+	ldx _x
+	ldy _y
 	lda #1
 	rts
 .endproc
@@ -393,8 +342,12 @@ _loop_continue:
 	cpy #BOARD_SIZE + 1
 	bne _loop
 
+.ifpsc02
+	stz puzzle,x
+.else
 	lda #UNASSIGNED
 	sta puzzle,x
+.endif
 
 _return_false:
 	plx
