@@ -2,7 +2,7 @@
 	ca65 $< --listing $(*F).lst
 
 %.65b : %.o
-	ld65 $< -o $@ --config $(*F).cfg
+	ld65 $< -o $@ --config $(*F).cfg -vm --mapfile $(*F).map
 
 all: sudoku.65b
 
