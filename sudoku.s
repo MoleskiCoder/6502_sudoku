@@ -50,18 +50,16 @@ scratch := $80
 
 ; Some useful constants
 
-UNASSIGNED := 0
-BOX_SIZE := 3
-BOARD_SIZE := 9
-CELL_COUNT := (BOARD_SIZE * BOARD_SIZE)
+UNASSIGNED = 0
+BOX_SIZE = 3
+BOARD_SIZE = 9
+CELL_COUNT = (BOARD_SIZE * BOARD_SIZE)
 
 
 .include "stack.inc"
 .include "maths.inc"
 .include "io.inc"
 
-.export solve, is_available
-.export is_used_in_row, is_used_in_column, is_used_in_box
 
 ;
 ; ** Move and grid position translation methods
