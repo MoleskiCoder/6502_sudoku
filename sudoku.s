@@ -22,6 +22,7 @@
 ;		500,568,464	~4 minutes @ 2Mhz
 ;		443,786,346	3 minutes 41 seconds @ 2Mhz
 ;		438,652,298
+; 65sc02	295,111,758	2 minutes 27 @ 2Mhz
 
         .setcpu "6502"
 

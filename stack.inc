@@ -25,15 +25,26 @@
 .endif
 
 .macro pusha
+.ifpsc02
+	sta (stack::stackp)
+	dec stack::stackp
+.endif
+.ifp02
 	stx stack::savex
 	ldx stack::stackp
 	sta 0,x
 	dex
 	stx stack::stackp
 	ldx stack::savex
+.endif
 .endmacro
 
 .macro popa
+.ifpsc02
+	inc stack::stackp
+	lda (stack::stackp)
+.endif
+.ifp02
 	stx stack::savex
 	ldx stack::stackp
 	inx
@@ -42,6 +53,7 @@
 	pha
 	ldx stack::savex
 	pla
+.endif
 .endmacro
 
 .macro pushx
@@ -110,9 +122,10 @@
 control := $10
 
 stackp := control
-savex := stackp + 1
 
-.export position, swap
+.ifp02
+savex := stackp + 1
+.endif
 
 ; Return the position of the stack in A
 .proc position
