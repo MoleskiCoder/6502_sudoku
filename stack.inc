@@ -102,18 +102,43 @@
 
 .macro drop
 	pha
-	popa
+	_drop
 	pla
 .endmacro
 
+.macro _drop
+	popa
+.endmacro
+
+; Conceptually derived from "over over"
 .macro two_dup
-	over
-	over
+	pha
+.ifpsc02
+	INC stack::stackp
+	INC stack::stackp
+	LDA (stack::stackp)
+	DEC stack::stackp
+	DEC stack::stackp
+	STA (stack::stackp)
+	INC stack::stackp
+	LDA (stack::stackp)
+	DEC stack::stackp
+	DEC stack::stackp
+	STA (stack::stackp)
+	DEC stack::stackp
+.endif
+.ifp02
+	_over
+	_over
+.endif
+	pla
 .endmacro
 
 .macro two_drop
-	drop
-	drop
+	pha
+	_drop
+	_drop
+	pla
 .endmacro
 
 ; Finish of the handy macros!
@@ -151,6 +176,21 @@ savex := stackp + 1
 
 .macro over
 	pha
+	_over
+	pla
+.endmacro
+
+.macro _over
+.ifpsc02
+	inc stack::stackp
+	inc stack::stackp
+	lda (stack::stackp)
+	dec stack::stackp
+	dec stack::stackp
+	sta (stack::stackp)
+	dec stack::stackp
+.endif
+.ifp02
 	phx
 	popa
 	popx
@@ -158,7 +198,7 @@ savex := stackp + 1
 	pusha
 	pushx
 	plx
-	pla
+.endif
 .endmacro
 
 

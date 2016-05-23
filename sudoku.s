@@ -22,7 +22,9 @@
 ;		500,568,464	~4 minutes @ 2Mhz
 ;		443,786,346	3 minutes 41 seconds @ 2Mhz
 ;		438,652,298
-; 65sc02	295,111,758	2 minutes 27 @ 2Mhz
+;
+; 65sc02	226,441,485	1 minute 53 seconds @ 2Mhz
+; 6502		431,702,957	3 minutes 35 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -241,7 +243,7 @@ success:
 
 ; One temporary byte used in column + box checking
 _x := scratch + 1
-_y = _x + 1
+_y := _x + 1
 
 	stx _x
 	sty _y
