@@ -26,7 +26,7 @@
 ; 65sc02	226,441,485	1 minute 53 seconds @ 2Mhz
 ; 6502		431,702,957	3 minutes 35 seconds @ 2Mhz
 
-        .setcpu "6502"
+        .setcpu "65sc02"
 
         .segment "OS"
 
