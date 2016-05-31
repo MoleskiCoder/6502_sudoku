@@ -153,36 +153,27 @@ savex := stackp + 1
 .proc swap
 	pha
 	phx
-
-.ifpsc02
 	phy
 
-	inc stack::stackp	; back to tos
-	lda (stack::stackp)	
-	tay			; load and place in y
+	ldx stack::stackp
+	inx
 
-	inc stack::stackp	; tos - 1
-	lda (stack::stackp)
-	tax			; load and place in x
+	lda 0,x			
+	tay			; y = tos
 
+	inx
+	lda 0,x			; a = tos - 1
+
+	dex
+	sta 0,x			; tos = tos - 1
+
+	inx
 	tya
-	sta (stack::stackp)	; save tos -> tos - 1
+	sta 0,x			; tos - 1 = tos
 
-	dec stack::stackp	; back to tos
-
-	txa
-	sta (stack::stackp)	; save tos - 1 -> tos
-
-	dec stack::stackp	; leave stack pointer as we found it
+	dex
 
 	ply
-.endif
-.ifp02
-	popx
-	popa
-	pushx
-	pusha
-.endif
 	plx
 	pla
 
