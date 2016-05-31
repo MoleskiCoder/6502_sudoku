@@ -174,11 +174,35 @@ savex := stackp + 1
 	pha
 	phx
 
+.ifpsc02
+	phy
+
+	inc stack::stackp	; back to tos
+	lda (stack::stackp)	
+	tay			; load and place in y
+
+	inc stack::stackp	; tos - 1
+	lda (stack::stackp)
+	tax			; load and place in x
+
+	tya
+	sta (stack::stackp)	; save tos -> tos - 1
+
+	dec stack::stackp	; back to tos
+
+	txa
+	sta (stack::stackp)	; save tos - 1 -> tos
+
+	dec stack::stackp	; leave stack pointer as we found it
+
+	ply
+.endif
+.ifp02
 	popx
 	popa
 	pushx
 	pusha
-
+.endif
 	plx
 	pla
 
