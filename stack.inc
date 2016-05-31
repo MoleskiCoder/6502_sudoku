@@ -91,8 +91,15 @@
 
 .macro dup
 	pha
-	top
-	pusha
+	phx
+	ldx stack::stackp
+	inx
+	lda 0,x
+	dex
+	sta 0,x
+	dex
+	stx stack::stackp
+	plx
 	pla
 .endmacro
 
