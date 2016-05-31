@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	219,123,579	1 minute 49 seconds @ 2Mhz
-; 6502		287,868,799	2 minutes 24 seconds @ 2Mhz
+; 65sc02	208,231,671	1 minute 44 seconds @ 2Mhz
+; 6502		269,698,493	2 minutes 14 seconds @ 2Mhz
 
         .setcpu "6502"
 

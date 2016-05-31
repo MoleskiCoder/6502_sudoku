@@ -107,44 +107,24 @@
 ; Conceptually derived from "over over"
 .macro two_dup
 	pha
-.ifp02
 	phx
-.endif
-.ifpsc02
-	INC stack::stackp
-	INC stack::stackp
-	LDA (stack::stackp)
-	DEC stack::stackp
-	DEC stack::stackp
-	STA (stack::stackp)
-	INC stack::stackp
-	LDA (stack::stackp)
-	DEC stack::stackp
-	DEC stack::stackp
-	STA (stack::stackp)
-	DEC stack::stackp
-.endif
-.ifp02
-	inc stack::stackp
-	inc stack::stackp
+
 	ldx stack::stackp
+	inx
+	inx
 	lda 0,x
-	dec stack::stackp
-	dec stack::stackp
-	ldx stack::stackp
+	dex
+	dex
 	sta 0,x
-	inc stack::stackp
-	ldx stack::stackp
+	inx
 	lda 0,x
-	dec stack::stackp
-	dec stack::stackp
-	ldx stack::stackp
+	dex
+	dex
 	sta 0,x
-	dec stack::stackp
-.endif
-.ifp02
+	dex
+	stx stack::stackp
+	
 	plx
-.endif
 	pla
 .endmacro
 
