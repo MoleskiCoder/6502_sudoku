@@ -113,6 +113,9 @@
 ; Conceptually derived from "over over"
 .macro two_dup
 	pha
+.ifp02
+	phx
+.endif
 .ifpsc02
 	INC stack::stackp
 	INC stack::stackp
@@ -130,6 +133,9 @@
 .ifp02
 	_over
 	_over
+.endif
+.ifp02
+	plx
 .endif
 	pla
 .endmacro
@@ -176,7 +182,13 @@ savex := stackp + 1
 
 .macro over
 	pha
+.ifp02
+	phx
+.endif
 	_over
+.ifp02
+	plx
+.endif
 	pla
 .endmacro
 
@@ -191,13 +203,15 @@ savex := stackp + 1
 	dec stack::stackp
 .endif
 .ifp02
-	phx
-	popa
-	popx
-	pushx
-	pusha
-	pushx
-	plx
+	inc stack::stackp
+	inc stack::stackp
+	ldx stack::stackp
+	lda 0,x
+	dec stack::stackp
+	dec stack::stackp
+	ldx stack::stackp
+	sta 0,x
+	dec stack::stackp
 .endif
 .endmacro
 

@@ -4,29 +4,12 @@
 ; A straightforward port from C to 6502 assembler (although feeling like Forth!)
 ;
 
-; Clock cycles: 2,080,575,831	17 minutes 20 seconds @ 2Mhz
-;		1,999,549,983
-;		1,966,492,180
-;		1,916,084,161
-;		1,622,811,358	~13 minutes @ 2Mhz
-;		1,447,350,749	~12 minutes @ 2Mhz
-;		1,407,594,238
-;		1,084,202,324	~9 minutes @ 2Mhz
-;		969,892,885	~8 minutes @ 2Mhz
-;		890,722,830	~7 minutes @ 2Mhz
-;		764,797,601	6 minutes 22 seconds @ 2Mhz
-;		742,956,409
-;		727,512,717	6 minutes @ 2Mhz
-;		718,335,675
-;		589,461,254	5 minutes @ 2MHz
-;		500,568,464	~4 minutes @ 2Mhz
-;		443,786,346	3 minutes 41 seconds @ 2Mhz
-;		438,652,298
+; Clock cycles:
 ;
 ; 65sc02	226,441,485	1 minute 53 seconds @ 2Mhz
-; 6502		431,702,957	3 minutes 35 seconds @ 2Mhz
+; 6502		313,691,879	2 minutes 36 seconds @ 2Mhz
 
-        .setcpu "65sc02"
+        .setcpu "6502"
 
         .segment "OS"
 
