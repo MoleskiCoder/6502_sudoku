@@ -131,8 +131,22 @@
 	DEC stack::stackp
 .endif
 .ifp02
-	_over
-	_over
+	inc stack::stackp
+	inc stack::stackp
+	ldx stack::stackp
+	lda 0,x
+	dec stack::stackp
+	dec stack::stackp
+	ldx stack::stackp
+	sta 0,x
+	inc stack::stackp
+	ldx stack::stackp
+	lda 0,x
+	dec stack::stackp
+	dec stack::stackp
+	ldx stack::stackp
+	sta 0,x
+	dec stack::stackp
 .endif
 .ifp02
 	plx
