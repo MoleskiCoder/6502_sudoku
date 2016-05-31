@@ -101,13 +101,7 @@
 .endmacro
 
 .macro drop
-	pha
-	_drop
-	pla
-.endmacro
-
-.macro _drop
-	popa
+	inc stack::stackp
 .endmacro
 
 ; Conceptually derived from "over over"
@@ -155,10 +149,8 @@
 .endmacro
 
 .macro two_drop
-	pha
-	_drop
-	_drop
-	pla
+	drop
+	drop
 .endmacro
 
 ; Finish of the handy macros!
