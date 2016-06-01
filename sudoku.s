@@ -6,10 +6,10 @@
 
 ; Clock cycles:
 ;
-; 65sc02	204,151,140	1 minute 42 seconds @ 2Mhz
-; 6502		251,808,013	2 minutes 6 seconds @ 2Mhz
+; 65sc02	197,407,200	1 minute 39 seconds @ 2Mhz
+; 6502		245,757,397	2 minutes 3 seconds @ 2Mhz
 
-        .setcpu "65sc02"
+        .setcpu "6502"
 
         .segment "OS"
 
@@ -165,12 +165,8 @@ success:
 	rts
 .endproc
 
-table_is_used_in_box_x:
-	.byte 0,  1,  2,  0,  1,  2,  0,  1,  2
-
-table_is_used_in_box_y:
-	.byte 0,  0,  0,  1,  1,  1,  2,  2,  2
-
+table_count2boxoffset:
+	.byte 0, 1, 2, 9, 10, 11, 18, 19, 20
 ; Function: is_used_in_box
 ; ------------------------
 ; Returns a boolean which indicates whether any assigned entry
@@ -188,15 +184,10 @@ _number := scratch
 loop:
 	dup
 
-	clc
-	lda table_is_used_in_box_x,y
-	ldx table_is_used_in_box_y,y
-	adc table_y2row_start,x
-
-	sta maths::control
 	popa
-	adc maths::control
-
+	clc
+	adc table_count2boxoffset,y
+	
 	tax
 
 	lda puzzle,x
