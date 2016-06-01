@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	118,629,785	59 seconds @ 2Mhz
-; 6502		122,906,894	1 minutes 1 seconds @ 2Mhz
+; 65sc02	112,691,644	56 seconds @ 2Mhz
+; 6502		115,523,239	57 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -164,6 +164,9 @@ success:
 table_count2boxoffset:
 	.byte 0, 1, 2, 9, 10, 11, 18, 19, 20
 
+box_offset_hold:
+	.byte 0
+
 ; Function: is_used_in_box
 ; ------------------------
 ; Returns a boolean which indicates whether any assigned entry
@@ -173,11 +176,11 @@ table_count2boxoffset:
 
 	ldx _n
 	lda table_move2box_start,x
-	pusha
+	sta box_offset_hold
 
 	ldy #0
 loop:
-	top
+	lda box_offset_hold
 
 	clc
 	adc table_count2boxoffset,y
@@ -191,11 +194,9 @@ loop:
 	cpy #BOARD_SIZE
 	bne loop
 fail:
-	drop
 	lda #1
 	rts
 success:
-	drop
 	lda #0
 	rts
 .endproc
