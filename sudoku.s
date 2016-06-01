@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	123,827,936	1 minute 2 seconds @ 2Mhz
-; 6502		133,908,121	1 minutes 7 seconds @ 2Mhz
+; 65sc02	118,629,785	59 seconds @ 2Mhz
+; 6502		122,906,894	1 minutes 1 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -108,12 +108,6 @@ table_move2box_start:
 	.byte 54, 54, 54, 57, 57, 57, 60, 60, 60
 	.byte 54, 54, 54, 57, 57, 57, 60, 60, 60
 
-.macro move2box_start ; ( n -- n )
-	popx
-	lda table_move2box_start,x
-	pusha
-.endmacro
-
 ; "is_used_in_" arguments
 
 _number := scratch
@@ -177,16 +171,10 @@ table_count2boxoffset:
 
 .proc is_used_in_box ; ( _number _n -- A:f )
 
-	lda _number
+	ldx _n
+	lda table_move2box_start,x
 	pusha
 
-	lda _n
-	pusha
-
-	move2box_start
-	swap
-	popa
-	sta _number
 	ldy #0
 loop:
 	top
