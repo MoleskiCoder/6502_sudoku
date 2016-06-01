@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	184,882,740	1 minute 32 seconds @ 2Mhz
-; 6502		223,598,737	1 minutes 52 seconds @ 2Mhz
+; 65sc02	123,827,936	1 minute 2 seconds @ 2Mhz
+; 6502		133,908,121	1 minutes 7 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -114,15 +114,20 @@ table_move2box_start:
 	pusha
 .endmacro
 
+; "is_used_in_" arguments
+
+_number := scratch
+_n := _number + 1
+
 ; Function: is_used_in_row
 ; ------------------------
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified row matches the given number.
 
-.proc is_used_in_row ; ( number n -- A:f )
-	popy
+.proc is_used_in_row ; ( _number _n -- A:f )
+	ldy _n
 	ldx table_move2row_start,y
-	popa
+	lda _number
 	ldy #BOARD_SIZE
 loop:
 	cmp puzzle,x
@@ -141,13 +146,10 @@ success:
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified column matches the given number.
 
-.proc is_used_in_column ; ( number n -- A:f )
+.proc is_used_in_column ; ( _number _n -- A:f )
 
-_number := scratch
-	popy
+	ldy _n
 	ldx table_move2x,y
-	popa
-	sta _number
 	ldy #BOARD_SIZE
 loop:
 	lda puzzle,x
@@ -173,9 +175,13 @@ table_count2boxoffset:
 ; Returns a boolean which indicates whether any assigned entry
 ; within the specified 3x3 box matches the given number.
 
-.proc is_used_in_box ; ( number n -- A:f )
+.proc is_used_in_box ; ( _number _n -- A:f )
 
-_number := scratch
+	lda _number
+	pusha
+
+	lda _n
+	pusha
 
 	move2box_start
 	swap
@@ -213,25 +219,23 @@ success:
 ; number to the given row, column location.As assignment is legal if it that
 ; number is not already used in the row, column, or box.
 
-.proc is_available ; ( number n -- A:f )
+.proc is_available ; ( _number _n -- A:f )
 
 ; One temporary byte used in column + box checking
-_x := scratch + 1
+_x := _n + 1
 _y := _x + 1
 
 	stx _x
 	sty _y
 
-	two_dup
 	jsr is_used_in_row
 	bne row_available
-	jmp used_drop
+	jmp used
 
 row_available:
-	two_dup
 	jsr is_used_in_column
 	bne column_available
-	jmp used_drop
+	jmp used
 
 column_available:
 	jsr is_used_in_box
@@ -242,8 +246,6 @@ column_available:
 	lda #0
 	rts
 
-used_drop:
-	two_drop
 used:
 	ldx _x
 	ldy _y
@@ -290,8 +292,8 @@ _begin_loop:
 	ldy #1
 
 _loop:
-	pushy
-	pushx
+	sty _number
+	stx _n
 	jsr is_available
 	bne _loop_continue
 
