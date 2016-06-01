@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	112,691,644	56 seconds @ 2Mhz
-; 6502		115,523,239	57 seconds @ 2Mhz
+; 65sc02	111,727,523	56 seconds @ 2Mhz
+; 6502		116,114,592	58 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -37,7 +37,6 @@ scratch := $80
 ; Some useful constants
 
 UNASSIGNED = 0
-BOX_SIZE = 3
 BOARD_SIZE = 9
 CELL_COUNT = (BOARD_SIZE * BOARD_SIZE)
 
@@ -61,28 +60,6 @@ table_move2x:
 	.byte 0, 1, 2, 3, 4, 5, 6, 7, 8
 	.byte 0, 1, 2, 3, 4, 5, 6, 7, 8
 	.byte 0, 1, 2, 3, 4, 5, 6, 7, 8
-
-table_move2y:
-	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
-	.byte 1, 1, 1, 1, 1, 1, 1, 1, 1
-	.byte 2, 2, 2, 2, 2, 2, 2, 2, 2
-	.byte 3, 3, 3, 3, 3, 3, 3, 3, 3
-	.byte 4, 4, 4, 4, 4, 4, 4, 4, 4
-	.byte 5, 5, 5, 5, 5, 5, 5, 5, 5
-	.byte 6, 6, 6, 6, 6, 6, 6, 6, 6
-	.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
-	.byte 8, 8, 8, 8, 8, 8, 8, 8, 8
-
-table_y2row_start:
-	.byte 0
-	.byte 9
-	.byte 18
-	.byte 27
-	.byte 36
-	.byte 45
-	.byte 54
-	.byte 63
-	.byte 72
 
 ; ** Row, column and box start positions
 
@@ -218,15 +195,11 @@ _y := _x + 1
 	sty _y
 
 	jsr is_used_in_row
-	bne row_available
-	jmp used
+	beq used
 
-row_available:
 	jsr is_used_in_column
-	bne column_available
-	jmp used
+	beq used
 
-column_available:
 	jsr is_used_in_box
 	beq used
 
