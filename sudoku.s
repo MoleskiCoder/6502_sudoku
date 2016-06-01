@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	197,407,200	1 minute 39 seconds @ 2Mhz
-; 6502		245,757,397	2 minutes 3 seconds @ 2Mhz
+; 65sc02	184,882,740	1 minute 32 seconds @ 2Mhz
+; 6502		223,598,737	1 minutes 52 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -167,6 +167,7 @@ success:
 
 table_count2boxoffset:
 	.byte 0, 1, 2, 9, 10, 11, 18, 19, 20
+
 ; Function: is_used_in_box
 ; ------------------------
 ; Returns a boolean which indicates whether any assigned entry
@@ -182,9 +183,8 @@ _number := scratch
 	sta _number
 	ldy #0
 loop:
-	dup
+	top
 
-	popa
 	clc
 	adc table_count2boxoffset,y
 	

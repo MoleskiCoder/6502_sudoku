@@ -85,8 +85,19 @@
 .endmacro
 
 .macro top
-	popa
-	pusha
+.ifpsc02
+	inc stack::stackp
+	lda (stack::stackp)
+	dec stack::stackp
+.endif
+.ifp02
+	stx stack::savex
+	ldx stack::stackp
+	inx
+	lda 0,x
+	dex
+	ldx stack::savex
+.endif
 .endmacro
 
 .macro dup
