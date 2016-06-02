@@ -46,6 +46,95 @@ CELL_COUNT = (BOARD_SIZE * BOARD_SIZE)
 .include "io.inc"
 
 
+.proc print_board_element
+	lda #' '
+	jsr io::outchr
+	popx
+	lda puzzle,x
+	beq unassigned
+	adc #'0'
+	jsr io::outchr
+	jmp finish
+unassigned:
+	lda #'-'
+	jsr io::outchr
+finish:
+	lda #' '
+	jsr io::outchr
+	rts
+.endproc
+
+.proc print_box_break_vertical
+	lda #'|'
+	jsr io::outchr
+	rts
+.endproc
+
+.proc print_box_break_horizontal
+	jsr io::outstr
+	.asciiz " --------+---------+--------"
+	rts
+.endproc
+
+.proc print_newline
+
+CR = $d
+LF = $a
+
+	lda #CR
+	jsr io::outchr
+	lda #LF
+	jsr io::outchr
+
+	rts
+.endproc
+
+.proc print_board
+
+	jsr print_newline
+	jsr print_newline
+
+	jsr print_box_break_horizontal
+	jsr print_newline
+
+	ldy #0
+loop:
+	pushy
+	jsr print_board_element
+
+	iny
+
+	; horizontal box break
+	lda table_move2box_y,y
+	bne boxh_continue
+	lda table_move2x,y
+	bne boxh_continue
+	jsr print_newline
+	jsr print_box_break_horizontal
+
+boxh_continue:
+	; newline only
+	lda table_move2x,y
+	bne newl_continue
+	jsr print_newline
+	jmp continue
+
+newl_continue:
+	; vertical box break
+	lda table_move2box_x,y
+	bne boxv_continue
+	jsr print_box_break_vertical
+	jmp continue
+
+boxv_continue:
+
+continue:
+	cpy #CELL_COUNT
+	bne loop
+	rts
+
+.endproc
+
 ;
 ; ** Move and grid position translation methods
 ;
@@ -60,6 +149,39 @@ table_move2x:
 	.byte 0, 1, 2, 3, 4, 5, 6, 7, 8
 	.byte 0, 1, 2, 3, 4, 5, 6, 7, 8
 	.byte 0, 1, 2, 3, 4, 5, 6, 7, 8
+
+table_move2y:
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 1, 1, 1, 1, 1, 1, 1, 1, 1
+	.byte 2, 2, 2, 2, 2, 2, 2, 2, 2
+	.byte 3, 3, 3, 3, 3, 3, 3, 3, 3
+	.byte 4, 4, 4, 4, 4, 4, 4, 4, 4
+	.byte 5, 5, 5, 5, 5, 5, 5, 5, 5
+	.byte 6, 6, 6, 6, 6, 6, 6, 6, 6
+	.byte 7, 7, 7, 7, 7, 7, 7, 7, 7
+	.byte 8, 8, 8, 8, 8, 8, 8, 8, 8
+
+table_move2box_x:
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+	.byte 0, 1, 2, 0, 1, 2, 0, 1, 2
+
+table_move2box_y:
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 1, 1, 1, 1, 1, 1, 1, 1, 1
+	.byte 2, 2, 2, 2, 2, 2, 2, 2, 2
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 1, 1, 1, 1, 1, 1, 1, 1, 1
+	.byte 2, 2, 2, 2, 2, 2, 2, 2, 2
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte 1, 1, 1, 1, 1, 1, 1, 1, 1
+	.byte 2, 2, 2, 2, 2, 2, 2, 2, 2
 
 ; ** Row, column and box start positions
 
@@ -315,6 +437,9 @@ reset:
 
 	jsr io::outstr
  	.asciiz "pass"
+
+	jsr print_board
+
 	jmp end
 
 fail:
