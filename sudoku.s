@@ -444,7 +444,7 @@ reset:
 	jsr io::outstr
  	.asciiz "pass"
 
-	;jsr print_board
+	jsr print_board
 
 	jmp end
 
