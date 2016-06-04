@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	111,727,523	56 seconds @ 2Mhz
-; 6502		116,114,592	58 seconds @ 2Mhz
+; 65sc02	109,643,329	55 seconds @ 2Mhz
+; 6502		114,831,159	57 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -261,6 +261,7 @@ success:
 .endproc
 
 table_count2boxoffset:
+	.byte 0 	; one byte table pad, since we're counting down.
 	.byte 0, 1, 2, 9, 10, 11, 18, 19, 20
 
 box_offset_hold:
@@ -277,7 +278,7 @@ box_offset_hold:
 	lda table_move2box_start,x
 	sta box_offset_hold
 
-	ldy #0
+	ldy #BOARD_SIZE
 loop:
 	lda box_offset_hold
 
@@ -289,8 +290,7 @@ loop:
 	lda puzzle,x
 	cmp _number
 	beq success
-	iny
-	cpy #BOARD_SIZE
+	dey
 	bne loop
 fail:
 	lda #1
