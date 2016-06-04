@@ -6,7 +6,7 @@
 
 ; Clock cycles:
 ;
-; 65sc02	109,643,329	55 seconds @ 2Mhz
+; 65sc02	109,165,549	54 seconds @ 2Mhz
 ; 6502		114,831,159	57 seconds @ 2Mhz
 
         .setcpu "6502"
@@ -274,8 +274,8 @@ box_offset_hold:
 
 .proc is_used_in_box ; ( _number _n -- A:f )
 
-	ldx _n
-	lda table_move2box_start,x
+	ldy _n
+	lda table_move2box_start,y
 	sta box_offset_hold
 
 	ldy #BOARD_SIZE
@@ -367,9 +367,15 @@ _not_finished:
 	inx
 	pushx
 	jsr solve
+.ifpsc02
+	plx
+	eor #0
+.else
 	pusha
 	plx
 	popa
+.endif
+
 	rts
 
 _begin_loop:
@@ -438,7 +444,7 @@ reset:
 	jsr io::outstr
  	.asciiz "pass"
 
-	jsr print_board
+	;jsr print_board
 
 	jmp end
 
