@@ -218,17 +218,27 @@ _n := _number + 1
 ; in the specified row matches the given number.
 
 .proc is_used_in_row ; ( _number _n -- A:f )
-	ldy _n
+
 	ldx table_move2row_start,y
-	lda _number
-	ldy #BOARD_SIZE
-loop:
+
 	cmp puzzle,x
 	beq success
-	inx
-	dey
-	bne loop
-	lda #1
+	cmp puzzle+1,x
+	beq success
+	cmp puzzle+2,x
+	beq success
+	cmp puzzle+3,x
+	beq success
+	cmp puzzle+4,x
+	beq success
+	cmp puzzle+5,x
+	beq success
+	cmp puzzle+6,x
+	beq success
+	cmp puzzle+7,x
+	beq success
+	cmp puzzle+8,x
+
 success:
 	rts
 .endproc
@@ -241,31 +251,30 @@ success:
 
 .proc is_used_in_column ; ( _number _n -- A:f )
 
-	ldy _n
 	ldx table_move2x,y
-	ldy #BOARD_SIZE
-loop:
-	lda puzzle,x
-	cmp _number
+
+	cmp puzzle,x
 	beq success
-	txa
-	clc
-	adc #BOARD_SIZE
-	tax
-	dey
-	bne loop
-fail:
-	lda #1
+	cmp puzzle+(BOARD_SIZE*1),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*2),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*3),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*4),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*5),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*6),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*7),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*8),x
+
 success:
 	rts
 .endproc
 
-table_count2boxoffset:
-	.byte 0 	; one byte table pad, since we're counting down.
-	.byte 0, 1, 2, 9, 10, 11, 18, 19, 20
-
-box_offset_hold:
-	.byte 0
 
 ; Function: is_used_in_box
 ; ------------------------
@@ -274,29 +283,27 @@ box_offset_hold:
 
 .proc is_used_in_box ; ( _number _n -- A:f )
 
-	ldy _n
-	lda table_move2box_start,y
-	sta box_offset_hold
+	ldx table_move2box_start,y
 
-	ldy #BOARD_SIZE
-loop:
-	lda box_offset_hold
-
-	clc
-	adc table_count2boxoffset,y
-	
-	tax
-
-	lda puzzle,x
-	cmp _number
+	cmp puzzle,x
 	beq success
-	dey
-	bne loop
-fail:
-	lda #1
-	rts
+	cmp puzzle+1,x
+	beq success
+	cmp puzzle+2,x
+	beq success
+	cmp puzzle+BOARD_SIZE,x
+	beq success
+	cmp puzzle+BOARD_SIZE+1,x
+	beq success
+	cmp puzzle+BOARD_SIZE+2,x
+	beq success
+	cmp puzzle+(BOARD_SIZE*2),x
+	beq success
+	cmp puzzle+(BOARD_SIZE*2)+1,x
+	beq success
+	cmp puzzle+(BOARD_SIZE*2)+2,x
+
 success:
-	lda #0
 	rts
 .endproc
 
@@ -315,6 +322,9 @@ _y := _x + 1
 
 	stx _x
 	sty _y
+
+	lda _number
+	ldy _n
 
 	jsr is_used_in_row
 	beq used
