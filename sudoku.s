@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	109,165,549	54 seconds @ 2Mhz
-; 6502		114,831,159	57 seconds @ 2Mhz
+; 65sc02	58,535,718	29 seconds @ 2Mhz
+; 6502		63,199,553	31 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -217,31 +217,30 @@ _n := _number + 1
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified row matches the given number.
 
-.proc is_used_in_row ; ( _number _n -- A:f )
+.macro is_used_in_row ; ( a:number a:n -- zero:used non-zero:unused )
 
 	ldx table_move2row_start,y
 
 	cmp puzzle,x
-	beq success
+	beq row_used
 	cmp puzzle+1,x
-	beq success
+	beq row_used
 	cmp puzzle+2,x
-	beq success
+	beq row_used
 	cmp puzzle+3,x
-	beq success
+	beq row_used
 	cmp puzzle+4,x
-	beq success
+	beq row_used
 	cmp puzzle+5,x
-	beq success
+	beq row_used
 	cmp puzzle+6,x
-	beq success
+	beq row_used
 	cmp puzzle+7,x
-	beq success
+	beq row_used
 	cmp puzzle+8,x
 
-success:
-	rts
-.endproc
+row_used:
+.endmacro
 
 
 ; Function: is_used_in_column
@@ -249,31 +248,30 @@ success:
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified column matches the given number.
 
-.proc is_used_in_column ; ( _number _n -- A:f )
+.macro is_used_in_column ; ( a:number a:n -- zero:used non-zero:unused )
 
 	ldx table_move2x,y
 
 	cmp puzzle,x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*1),x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*2),x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*3),x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*4),x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*5),x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*6),x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*7),x
-	beq success
+	beq column_used
 	cmp puzzle+(BOARD_SIZE*8),x
 
-success:
-	rts
-.endproc
+column_used:
+.endmacro
 
 
 ; Function: is_used_in_box
@@ -281,31 +279,30 @@ success:
 ; Returns a boolean which indicates whether any assigned entry
 ; within the specified 3x3 box matches the given number.
 
-.proc is_used_in_box ; ( _number _n -- A:f )
+.macro is_used_in_box ; ( a:number a:n -- zero:used non-zero:unused )
 
 	ldx table_move2box_start,y
 
 	cmp puzzle,x
-	beq success
+	beq box_used
 	cmp puzzle+1,x
-	beq success
+	beq box_used
 	cmp puzzle+2,x
-	beq success
+	beq box_used
 	cmp puzzle+BOARD_SIZE,x
-	beq success
+	beq box_used
 	cmp puzzle+BOARD_SIZE+1,x
-	beq success
+	beq box_used
 	cmp puzzle+BOARD_SIZE+2,x
-	beq success
+	beq box_used
 	cmp puzzle+(BOARD_SIZE*2),x
-	beq success
+	beq box_used
 	cmp puzzle+(BOARD_SIZE*2)+1,x
-	beq success
+	beq box_used
 	cmp puzzle+(BOARD_SIZE*2)+2,x
 
-success:
-	rts
-.endproc
+box_used:
+.endmacro
 
 
 ; Function: is_available
@@ -326,13 +323,13 @@ _y := _x + 1
 	lda _number
 	ldy _n
 
-	jsr is_used_in_row
+	is_used_in_row
 	beq used
 
-	jsr is_used_in_column
+	is_used_in_column
 	beq used
 
-	jsr is_used_in_box
+	is_used_in_box
 	beq used
 
 	ldx _x
