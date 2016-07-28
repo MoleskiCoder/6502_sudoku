@@ -7,7 +7,7 @@
 ; Clock cycles:
 ;
 ; 65sc02	58,535,718	29 seconds @ 2Mhz
-; 6502		63,199,553	31 seconds @ 2Mhz
+; 6502		59,217,849	29 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -318,10 +318,8 @@ _x := _n + 1
 _y := _x + 1
 
 	stx _x
-	sty _y
 
 	lda _number
-	ldy _n
 
 	is_used_in_row
 	beq used
@@ -333,13 +331,11 @@ _y := _x + 1
 	beq used
 
 	ldx _x
-	ldy _y
 	lda #0
 	rts
 
 used:
 	ldx _x
-	ldy _y
 	lda #1
 	rts
 .endproc
@@ -360,76 +356,76 @@ used:
 
 .proc solve ; ( n -- A:f )
 
-	phx
+	phy
 
-	popx
-	cpx #CELL_COUNT
+	popy
+	cpy #CELL_COUNT
 	bne _not_finished
 	jmp _return_true
 
 _not_finished:
-	lda puzzle,x
+	lda puzzle,y
 	beq _begin_loop
 
-	inx
-	pushx
+	iny
+	pushy
 	jsr solve
 .ifpsc02
-	plx
+	ply
 	eor #0
 .else
 	pusha
-	plx
+	ply
 	popa
 .endif
 
 	rts
 
 _begin_loop:
-	ldy #1
+	ldx #1
 
 _loop:
-	sty _number
-	stx _n
+	stx _number
+	sty _n
 	jsr is_available
 	bne _loop_continue
 
-	tya
-	sta puzzle,x
+	txa
+	sta puzzle,y
 
-	pushy
-
-	phx
-	inx
 	pushx
-	plx
+
+	phy
+	iny
+	pushy
+	ply
 
 	jsr solve
 
-	popy
+	popx
 
 	cmp #0
 	beq _return_true
 
 _loop_continue:
-	iny
-	cpy #BOARD_SIZE + 1
+	inx
+	cpx #BOARD_SIZE + 1
 	bne _loop
 
 .ifpsc02
-	stz puzzle,x
+	stz puzzle,y
 .else
 	lda #UNASSIGNED
-	sta puzzle,x
+	sta puzzle,y
 .endif
 
 _return_false:
-	plx
+	ply
 	lda #1
 	rts
 
 _return_true:
-	plx
+	ply
 	lda #0
 	rts
 
