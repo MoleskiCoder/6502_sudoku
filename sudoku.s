@@ -7,7 +7,7 @@
 ; Clock cycles:
 ;
 ; 65sc02	58,535,718	29 seconds @ 2Mhz
-; 6502		59,217,849	29 seconds @ 2Mhz
+; 6502		55,304,963	27 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -315,11 +315,8 @@ box_used:
 
 ; One temporary byte used in column + box checking
 _x := _n + 1
-_y := _x + 1
 
 	stx _x
-
-	lda _number
 
 	is_used_in_row
 	beq used
@@ -336,8 +333,7 @@ _y := _x + 1
 
 used:
 	ldx _x
-	lda #1
-	rts
+	rts	; x *must* be non-zero, clearing the zero flag implicitly
 .endproc
 
 
@@ -385,8 +381,7 @@ _begin_loop:
 	ldx #1
 
 _loop:
-	stx _number
-	sty _n
+	txa
 	jsr is_available
 	bne _loop_continue
 
