@@ -6,7 +6,7 @@
 
 ; Clock cycles:
 ;
-; 65sc02	58,535,718	29 seconds @ 2Mhz
+; 65sc02	50,610,830	25 seconds @ 2Mhz
 ; 6502		55,304,963	27 seconds @ 2Mhz
 
         .setcpu "6502"
@@ -219,25 +219,25 @@ _n := _number + 1
 
 .macro is_used_in_row ; ( a:number a:n -- zero:used non-zero:unused )
 
-	ldx table_move2row_start,y
+	ldy table_move2row_start,x
 
-	cmp puzzle,x
+	cmp puzzle,y
 	beq row_used
-	cmp puzzle+1,x
+	cmp puzzle+1,y
 	beq row_used
-	cmp puzzle+2,x
+	cmp puzzle+2,y
 	beq row_used
-	cmp puzzle+3,x
+	cmp puzzle+3,y
 	beq row_used
-	cmp puzzle+4,x
+	cmp puzzle+4,y
 	beq row_used
-	cmp puzzle+5,x
+	cmp puzzle+5,y
 	beq row_used
-	cmp puzzle+6,x
+	cmp puzzle+6,y
 	beq row_used
-	cmp puzzle+7,x
+	cmp puzzle+7,y
 	beq row_used
-	cmp puzzle+8,x
+	cmp puzzle+8,y
 
 row_used:
 .endmacro
@@ -250,25 +250,25 @@ row_used:
 
 .macro is_used_in_column ; ( a:number a:n -- zero:used non-zero:unused )
 
-	ldx table_move2x,y
+	ldy table_move2x,x
 
-	cmp puzzle,x
+	cmp puzzle,y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*1),x
+	cmp puzzle+(BOARD_SIZE*1),y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*2),x
+	cmp puzzle+(BOARD_SIZE*2),y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*3),x
+	cmp puzzle+(BOARD_SIZE*3),y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*4),x
+	cmp puzzle+(BOARD_SIZE*4),y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*5),x
+	cmp puzzle+(BOARD_SIZE*5),y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*6),x
+	cmp puzzle+(BOARD_SIZE*6),y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*7),x
+	cmp puzzle+(BOARD_SIZE*7),y
 	beq column_used
-	cmp puzzle+(BOARD_SIZE*8),x
+	cmp puzzle+(BOARD_SIZE*8),y
 
 column_used:
 .endmacro
@@ -281,25 +281,25 @@ column_used:
 
 .macro is_used_in_box ; ( a:number a:n -- zero:used non-zero:unused )
 
-	ldx table_move2box_start,y
+	ldy table_move2box_start,x
 
-	cmp puzzle,x
+	cmp puzzle,y
 	beq box_used
-	cmp puzzle+1,x
+	cmp puzzle+1,y
 	beq box_used
-	cmp puzzle+2,x
+	cmp puzzle+2,y
 	beq box_used
-	cmp puzzle+BOARD_SIZE,x
+	cmp puzzle+BOARD_SIZE,y
 	beq box_used
-	cmp puzzle+BOARD_SIZE+1,x
+	cmp puzzle+BOARD_SIZE+1,y
 	beq box_used
-	cmp puzzle+BOARD_SIZE+2,x
+	cmp puzzle+BOARD_SIZE+2,y
 	beq box_used
-	cmp puzzle+(BOARD_SIZE*2),x
+	cmp puzzle+(BOARD_SIZE*2),y
 	beq box_used
-	cmp puzzle+(BOARD_SIZE*2)+1,x
+	cmp puzzle+(BOARD_SIZE*2)+1,y
 	beq box_used
-	cmp puzzle+(BOARD_SIZE*2)+2,x
+	cmp puzzle+(BOARD_SIZE*2)+2,y
 
 box_used:
 .endmacro
@@ -314,9 +314,9 @@ box_used:
 .proc is_available ; ( _number _n -- A:f )
 
 ; One temporary byte used in column + box checking
-_x := _n + 1
+_y := _n + 1
 
-	stx _x
+	sty _y
 
 	is_used_in_row
 	beq used
@@ -327,13 +327,13 @@ _x := _n + 1
 	is_used_in_box
 	beq used
 
-	ldx _x
+	ldy _y
 	lda #0
 	rts
 
 used:
-	ldx _x
-	rts	; x *must* be non-zero, clearing the zero flag implicitly
+	ldy _y
+	rts	; y *must* be non-zero, clearing the zero flag implicitly
 .endproc
 
 
@@ -352,75 +352,75 @@ used:
 
 .proc solve ; ( n -- A:f )
 
-	phy
+	phx
 
-	popy
-	cpy #CELL_COUNT
+	popx
+	cpx #CELL_COUNT
 	bne _not_finished
 	jmp _return_true
 
 _not_finished:
-	lda puzzle,y
+	lda puzzle,x
 	beq _begin_loop
 
-	iny
-	pushy
+	inx
+	pushx
 	jsr solve
 .ifpsc02
-	ply
+	plx
 	eor #0
 .else
 	pusha
-	ply
+	plx
 	popa
 .endif
 
 	rts
 
 _begin_loop:
-	ldx #1
+	ldy #1
 
 _loop:
-	txa
+	tya
 	jsr is_available
 	bne _loop_continue
 
-	txa
-	sta puzzle,y
+	tya
+	sta puzzle,x
 
-	pushx
-
-	phy
-	iny
 	pushy
-	ply
+
+	phx
+	inx
+	pushx
+	plx
 
 	jsr solve
 
-	popx
+	popy
 
 	cmp #0
 	beq _return_true
 
 _loop_continue:
-	inx
-	cpx #BOARD_SIZE + 1
+	iny
+	cpy #BOARD_SIZE + 1
 	bne _loop
 
 .ifpsc02
-	stz puzzle,y
+	stz puzzle,x
 .else
 	lda #UNASSIGNED
-	sta puzzle,y
+	sta puzzle,x
 .endif
 
 _return_false:
-	ply
+	plx
 	lda #1
 	rts
 
 _return_true:
-	ply
+	plx
 	lda #0
 	rts
 
