@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	50,610,830	25 seconds @ 2Mhz
-; 6502		55,304,963	27 seconds @ 2Mhz
+; 65sc02	46,241,890	23 seconds @ 2Mhz
+; 6502		50,377,591	25 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -311,7 +311,7 @@ box_used:
 ; number to the given row, column location.As assignment is legal if it that
 ; number is not already used in the row, column, or box.
 
-.proc is_available ; ( _number _n -- A:f )
+.macro is_available ; ( _number _n -- A:f )
 
 ; One temporary byte used in column + box checking
 _y := _n + 1
@@ -329,12 +329,12 @@ _y := _n + 1
 
 	ldy _y
 	lda #0
-	rts
-
+	beq done
 used:
 	ldy _y
-	rts	; y *must* be non-zero, clearing the zero flag implicitly
-.endproc
+	; y *must* be non-zero, clearing the zero flag implicitly
+done:
+.endmacro
 
 
 ; Function: solve
@@ -382,7 +382,7 @@ _begin_loop:
 
 _loop:
 	tya
-	jsr is_available
+	is_available
 	bne _loop_continue
 
 	tya
@@ -405,7 +405,9 @@ _loop:
 _loop_continue:
 	iny
 	cpy #BOARD_SIZE + 1
-	bne _loop
+	beq _round
+	jmp _loop
+_round:
 
 .ifpsc02
 	stz puzzle,x
