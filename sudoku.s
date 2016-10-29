@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	46,241,890	23 seconds @ 2Mhz
-; 6502		50,377,591	25 seconds @ 2Mhz
+; 65sc02	46,142,894	23 seconds @ 2Mhz
+; 6502		50,278,595	25 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -418,7 +418,7 @@ _round:
 
 _return_false:
 	plx
-	lda #1
+	; x *must* be non-zero, so no need to clear set the z flag
 	rts
 
 _return_true:
