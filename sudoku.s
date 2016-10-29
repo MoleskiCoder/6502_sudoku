@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	46,142,894	23 seconds @ 2Mhz
-; 6502		50,278,595	25 seconds @ 2Mhz
+; 65sc02	43,898,061	22 seconds @ 2Mhz
+; 6502		49,513,518	25 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -42,7 +42,6 @@ CELL_COUNT = (BOARD_SIZE * BOARD_SIZE)
 
 
 .include "stack.inc"
-.include "maths.inc"
 .include "io.inc"
 
 
@@ -397,9 +396,10 @@ _loop:
 
 	jsr solve
 
+	pha
 	popy
+	pla
 
-	cmp #0
 	beq _return_true
 
 _loop_continue:

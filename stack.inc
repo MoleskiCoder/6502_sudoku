@@ -57,98 +57,23 @@
 .endmacro
 
 .macro pushx
-	pha
 	txa
 	pusha
-	pla
 .endmacro
 
 .macro popx
-	pha
 	popa
 	tax
-	pla
 .endmacro
 
 .macro pushy
-	pha
 	tya
 	pusha
-	pla
 .endmacro
 
 .macro popy
-	pha
 	popa
 	tay
-	pla
-.endmacro
-
-.macro top
-.ifpsc02
-	inc stack::stackp
-	lda (stack::stackp)
-	dec stack::stackp
-.endif
-.ifp02
-	stx stack::savex
-	ldx stack::stackp
-	inx
-	lda 0,x
-	dex
-	ldx stack::savex
-.endif
-.endmacro
-
-.macro dup
-	pha
-	phx
-	ldx stack::stackp
-	inx
-	lda 0,x
-	dex
-	sta 0,x
-	dex
-	stx stack::stackp
-	plx
-	pla
-.endmacro
-
-.macro swap
-	jsr stack::swap
-.endmacro
-
-.macro drop
-	inc stack::stackp
-.endmacro
-
-; Conceptually derived from "over over"
-.macro two_dup
-	pha
-	phx
-
-	ldx stack::stackp
-	inx
-	inx
-	lda 0,x
-	dex
-	dex
-	sta 0,x
-	inx
-	lda 0,x
-	dex
-	dex
-	sta 0,x
-	dex
-	stx stack::stackp
-	
-	plx
-	pla
-.endmacro
-
-.macro two_drop
-	drop
-	drop
 .endmacro
 
 ; Finish of the handy macros!
@@ -161,78 +86,6 @@ stackp := control
 .ifp02
 savex := stackp + 1
 .endif
-
-; Return the position of the stack in A
-.proc position
-	lda stackp
-	rts
-.endproc
-
-.proc swap
-	pha
-	phx
-	phy
-
-	ldx stack::stackp
-	inx
-
-	lda 0,x			
-	tay			; y = tos
-
-	inx
-	lda 0,x			; a = tos - 1
-
-	dex
-	sta 0,x			; tos = tos - 1
-
-	inx
-	tya
-	sta 0,x			; tos - 1 = tos
-
-	dex
-
-	ply
-	plx
-	pla
-
-	rts
-.endproc
-
-
-.macro over
-	pha
-.ifp02
-	phx
-.endif
-	_over
-.ifp02
-	plx
-.endif
-	pla
-.endmacro
-
-.macro _over
-.ifpsc02
-	inc stack::stackp
-	inc stack::stackp
-	lda (stack::stackp)
-	dec stack::stackp
-	dec stack::stackp
-	sta (stack::stackp)
-	dec stack::stackp
-.endif
-.ifp02
-	inc stack::stackp
-	inc stack::stackp
-	ldx stack::stackp
-	lda 0,x
-	dec stack::stackp
-	dec stack::stackp
-	ldx stack::stackp
-	sta 0,x
-	dec stack::stackp
-.endif
-.endmacro
 
 
 ; Initialise the stack to an empty state
