@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	43,898,061	22 seconds @ 2Mhz
-; 6502		49,513,518	25 seconds @ 2Mhz
+; 65sc02	43,798,945	21.8 seconds @ 2Mhz
+; 6502		49,067,496	24.5 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -389,10 +389,9 @@ _loop:
 
 	pushy
 
-	phx
 	inx
 	pushx
-	plx
+	dex
 
 	jsr solve
 
