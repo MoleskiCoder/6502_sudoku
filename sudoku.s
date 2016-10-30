@@ -206,17 +206,12 @@ table_move2box_start:
 	.byte 54, 54, 54, 57, 57, 57, 60, 60, 60
 	.byte 54, 54, 54, 57, 57, 57, 60, 60, 60
 
-; "is_used_in_" arguments
-
-_number := scratch
-_n := _number + 1
-
 ; Function: is_used_in_row
 ; ------------------------
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified row matches the given number.
 
-.macro is_used_in_row ; ( a:number a:n -- zero:used non-zero:unused )
+.macro is_used_in_row ; ( a:number x:n -- zero:used non-zero:unused )
 
 	ldy table_move2row_start,x
 
@@ -247,7 +242,7 @@ row_used:
 ; Returns a boolean which indicates whether any assigned entry
 ; in the specified column matches the given number.
 
-.macro is_used_in_column ; ( a:number a:n -- zero:used non-zero:unused )
+.macro is_used_in_column ; ( a:number x:n -- zero:used non-zero:unused )
 
 	ldy table_move2x,x
 
@@ -278,7 +273,7 @@ column_used:
 ; Returns a boolean which indicates whether any assigned entry
 ; within the specified 3x3 box matches the given number.
 
-.macro is_used_in_box ; ( a:number a:n -- zero:used non-zero:unused )
+.macro is_used_in_box ; ( a:number x:n -- zero:used non-zero:unused )
 
 	ldy table_move2box_start,x
 
@@ -310,10 +305,9 @@ box_used:
 ; number to the given row, column location.As assignment is legal if it that
 ; number is not already used in the row, column, or box.
 
-.macro is_available ; ( _number _n -- A:f )
+.macro is_available ; ( a:number x:n -- zero:available non-zero:unavailable )
 
-; One temporary byte used in column + box checking
-_y := _n + 1
+_y := scratch
 
 	sty _y
 
@@ -417,7 +411,7 @@ _round:
 
 _return_false:
 	plx
-	; x *must* be non-zero, so no need to clear set the z flag
+	; x *must* be non-zero, clearing the zero flag implicitly
 	rts
 
 _return_true:
