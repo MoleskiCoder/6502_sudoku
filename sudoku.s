@@ -346,7 +346,7 @@ done:
 	popx
 	cpx #CELL_COUNT
 	bne _not_finished
-	jmp _return_true
+	jmp _return_true	; success!
 
 _not_finished:
 	lda puzzle,x
@@ -354,7 +354,7 @@ _not_finished:
 
 	inx
 	pushx
-	jsr solve
+	jsr solve			; if it's already assigned, skip
 .ifpsc02
 	plx
 	eor #0
@@ -375,7 +375,7 @@ _loop:
 	bne _loop_continue
 
 	tya
-	sta puzzle,x
+	sta puzzle,x		; make tentative assignment
 
 	pusha
 
@@ -389,15 +389,16 @@ _loop:
 	popy
 	pla
 
-	beq _return_true
+	beq _return_true	; recur, if success, yay!
 
 _loop_continue:
 	iny
-	cpy #BOARD_SIZE + 1
+	cpy #BOARD_SIZE + 1	; consider all digits
 	beq _round
 	jmp _loop
 _round:
 
+						; failure, unmake & try again
 .ifpsc02
 	stz puzzle,x
 .else
@@ -407,8 +408,8 @@ _round:
 
 _return_false:
 	plx
-	; x *must* be non-zero, clearing the zero flag implicitly
-	rts
+	; x *must* be non-zero
+	rts					; this triggers backtracking
 
 _return_true:
 	plx
