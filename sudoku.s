@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	43,798,945	21.8 seconds @ 2Mhz
-; 6502		49,067,496	24.5 seconds @ 2Mhz
+; 65sc02	42,015,833	21.0 seconds @ 2Mhz
+; 6502		47,284,384	23.5 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -307,10 +307,6 @@ box_used:
 
 .macro is_available ; ( a:number x:n -- zero:available non-zero:unavailable )
 
-_y := scratch
-
-	sty _y
-
 	is_used_in_row
 	beq used
 
@@ -320,11 +316,11 @@ _y := scratch
 	is_used_in_box
 	beq used
 
-	ldy _y
+	tay
 	lda #0
 	beq done
 used:
-	ldy _y
+	tay
 	; y *must* be non-zero, clearing the zero flag implicitly
 done:
 .endmacro
