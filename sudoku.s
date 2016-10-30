@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	42,015,833	21.0 seconds @ 2Mhz
-; 6502		47,284,384	23.5 seconds @ 2Mhz
+; 65sc02	41,916,717	21.0 seconds @ 2Mhz
+; 6502		47,185,268	23.5 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -377,7 +377,7 @@ _loop:
 	tya
 	sta puzzle,x
 
-	pushy
+	pusha
 
 	inx
 	pushx
