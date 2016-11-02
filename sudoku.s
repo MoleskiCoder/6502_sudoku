@@ -6,8 +6,8 @@
 
 ; Clock cycles:
 ;
-; 65sc02	41,916,717	21.0 seconds @ 2Mhz
-; 6502		47,185,268	23.5 seconds @ 2Mhz
+; 65sc02	41,668,796	20.8 seconds @ 2Mhz
+; 6502		46,013,289	23.0 seconds @ 2Mhz
 
         .setcpu "6502"
 
@@ -346,7 +346,10 @@ done:
 	popx
 	cpx #CELL_COUNT
 	bne _not_finished
-	jmp _return_true	; success!
+
+	plx
+	lda #0
+	rts			; success!
 
 _not_finished:
 	lda puzzle,x
@@ -354,17 +357,9 @@ _not_finished:
 
 	inx
 	pushx
-	jsr solve			; if it's already assigned, skip
-.ifpsc02
 	plx
-	eor #0
-.else
-	pusha
-	plx
-	popa
-.endif
 
-	rts
+	jmp solve		; if it's already assigned, skip
 
 _begin_loop:
 	ldy #1
@@ -372,7 +367,7 @@ _begin_loop:
 _loop:
 	tya
 	is_available
-	bne _loop_continue
+	bne _loop_continue	; if looks promising
 
 	tya
 	sta puzzle,x		; make tentative assignment
@@ -398,7 +393,7 @@ _loop_continue:
 	jmp _loop
 _round:
 
-						; failure, unmake & try again
+				; failure, unmake & try again
 .ifpsc02
 	stz puzzle,x
 .else
@@ -409,7 +404,7 @@ _round:
 _return_false:
 	plx
 	; x *must* be non-zero
-	rts					; this triggers backtracking
+	rts			; this triggers backtracking
 
 _return_true:
 	plx
